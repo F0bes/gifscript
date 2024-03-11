@@ -1,12 +1,48 @@
-gifscript, a GS packet transpiler.
+# gifscript, a GS packet transpiler.
 
 View the examples directory for, well, examples.
 
-Currently supports
-- prim (aa1 and gouraud modifiers)
-- xyz2 (vec3 literals) 
-- rgbaq (vec4 and vec3 literals)
-- macros with first-class support for macro-level xyz2 offsets
+Currently supports:
+- prim (aa1 and gouraud modifiers).
+- xyz2 (vec3 literals).
+- rgbaq (vec4 and vec3 literals).
+- macros with first-class support for macro-level xyz2 offsets.
+- C (/**/) and C++ (//) comments.
 
 Currently it dumps the generated code to stdout.
 Documentation coming soon.
+
+## What problem does this solve?
+At the moment, nothing really. It's just a little abstraction over writing gif
+packets manually. I only started this project to learn how to write a lexer and
+parser.
+Eventually it would be interesting to create another frontend (lexer)
+that takes in binary data and make this into a bidirectional transpiler.
+This could end up being a nifty debug tool for PS2 GS development.
+
+## Task List:
+- Output to a file, not just stdout.
+- Support more registers / modifiers.
+- Macros inside of macros.
+- Dynamic variables / arguments for macros, instead of just fixed xy offset.
+- Fix memory leaks. Look into smart pointers for register allocation.
+- External variable support. Design is still under thought.
+- Binary data backend.
+- Support PACKED formats when available.
+- Heuristic for REGLIST / AD precision problems.
+- Move first PRIM into GIFTAG.
+- Optimizations? IE: cull writes to a register that has no side effects twice.
+- Handle super sized gif packets that require more than one packet.
+- Errors needs to propagate back instead of continuing in an error state.
+
+## Design Details
+This may be incorrect by the time you read this. But here is the outline of how
+gifscript works.
+
+The frontend (gifscript.rl), powered by ragel, takes in the file data and tokenizes it.
+The tokens then get sent to the parser (parser.y), powered by lemon.
+The parser then communicates with the "machine" (great name, I know) which
+handles gif blocks, macros and various state.
+When it is time for the block to be emitted, the machine calls the current
+backend, which contains the logic for how to represent the block in the output
+format.
