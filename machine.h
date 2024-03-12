@@ -9,27 +9,28 @@
 
 class Machine
 {
-	Backend *backend = nullptr;
+	Backend* backend = nullptr;
 
 	std::list<GIFBlock> blocks;
 	std::map<std::string, GIFBlock> macros;
 	// Do not use this to push registers
-	GIFBlock *currentBlock;
+	GIFBlock* currentBlock;
 	// Do not use this to push registers
-	GIFBlock *currentMacro;
+	GIFBlock* currentMacro;
 	// Use THIS to push registers
-	GIFBlock *currentBlockMacro;
+	GIFBlock* currentBlockMacro;
 
 	std::shared_ptr<GifRegister> currentRegister;
 
 public:
 	// this still leaks memory
-	~Machine(){
+	~Machine()
+	{
 		blocks.clear();
 		macros.clear();
 	}
 
-	void SetBackend(Backend *backend) noexcept { this->backend = backend; };
+	void SetBackend(Backend* backend) noexcept { this->backend = backend; };
 	bool TryStartBlock(const std::string name);
 	bool TryStartMacro(const std::string name);
 	bool TryEndBlockMacro();

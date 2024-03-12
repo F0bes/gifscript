@@ -18,7 +18,7 @@ class c_code_backend : public Backend
 		USE_MAGIC
 	};
 
-	public:
+public:
 	c_code_backend() noexcept;
 	~c_code_backend();
 
@@ -35,17 +35,16 @@ class c_code_backend : public Backend
 
 	// Primitive dispatching
 	static std::string emit_primitive(c_code_backend*, std::shared_ptr<GifRegister> reg);
-	static std::string emit_rgbaq(c_code_backend*,std::shared_ptr<GifRegister> reg);
-	static std::string emit_xyz2(c_code_backend*,std::shared_ptr<GifRegister> reg);
+	static std::string emit_rgbaq(c_code_backend*, std::shared_ptr<GifRegister> reg);
+	static std::string emit_xyz2(c_code_backend*, std::shared_ptr<GifRegister> reg);
 
-	std::unordered_map<uint32_t, std::function<std::string(c_code_backend*, std::shared_ptr<GifRegister>)>> dispatch_table = 
-	{
-		{0, c_code_backend::emit_primitive},
-		{1, c_code_backend::emit_rgbaq},
-		{5, c_code_backend::emit_xyz2}
-	};
+	std::unordered_map<uint32_t, std::function<std::string(c_code_backend*, std::shared_ptr<GifRegister>)>> dispatch_table =
+		{
+			{0, c_code_backend::emit_primitive},
+			{1, c_code_backend::emit_rgbaq},
+			{5, c_code_backend::emit_xyz2}};
 
-	private:
+private:
 	EmitMode emit_mode = EmitMode::USE_DEFS;
 	std::string_view output = "";
 	FILE* file = nullptr;

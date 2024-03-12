@@ -17,7 +17,7 @@ enum class GifRegisters
 	XYZ2
 };
 
-const char *const GifRegisterStrings[] = {
+const char* const GifRegisterStrings[] = {
 	"PRIM",
 	"RGBAQ",
 	"XYZ2"};
@@ -63,7 +63,9 @@ class GifRegister
 
 public:
 	constexpr GifRegister(uint32_t id, const std::string_view name, RAT rat)
-		: id(id), name(name), rat(rat)
+		: id(id)
+		, name(name)
+		, rat(rat)
 	{
 	}
 
@@ -110,7 +112,7 @@ enum class PrimType
 	Sprite
 };
 
-static std::map<PrimType,const char*> PrimTypeStrings = {
+static std::map<PrimType, const char*> PrimTypeStrings = {
 	{PrimType::Point, "GS_PRIM_POINT"},
 	{PrimType::Line, "GS_PRIM_LINE"},
 	{PrimType::LineStrip, "GS_PRIM_LINE_STRIP"},
@@ -177,36 +179,36 @@ public:
 		std::cout << "Applying modifier: " << mod << std::endl;
 		switch (mod)
 		{
-		case Point:
-			type = PrimType::Point;
-			break;
-		case Line:
-			type = PrimType::Line;
-			break;
-		case LineStrip:
-			type = PrimType::LineStrip;
-			break;
-		case Triangle:
-			type = PrimType::Triangle;
-			break;
-		case TriangleStrip:
-			type = PrimType::TriangleStrip;
-			break;
-		case TriangleFan:
-			type = PrimType::TriangleFan;
-			break;
-		case Sprite:
-			type = PrimType::Sprite;
-			break;
-		case Gouraud:
-			gouraud = true;
-			break;
-		case AA1:
-			aa1 = true;
-			break;
-		default:
-			std::cerr << "Unknown modifier: " << mod << std::endl;
-			return false;
+			case Point:
+				type = PrimType::Point;
+				break;
+			case Line:
+				type = PrimType::Line;
+				break;
+			case LineStrip:
+				type = PrimType::LineStrip;
+				break;
+			case Triangle:
+				type = PrimType::Triangle;
+				break;
+			case TriangleStrip:
+				type = PrimType::TriangleStrip;
+				break;
+			case TriangleFan:
+				type = PrimType::TriangleFan;
+				break;
+			case Sprite:
+				type = PrimType::Sprite;
+				break;
+			case Gouraud:
+				gouraud = true;
+				break;
+			case AA1:
+				aa1 = true;
+				break;
+			default:
+				std::cerr << "Unknown modifier: " << mod << std::endl;
+				return false;
 		}
 
 		return true;
@@ -382,16 +384,16 @@ static std::shared_ptr<GifRegister> GenReg(GifRegisters reg)
 {
 	switch (reg)
 	{
-	case GifRegisters::PRIM:
-		return std::make_shared<PRIM>();
-	case GifRegisters::RGBAQ:
-		return std::make_shared<RGBAQ>();
-	case GifRegisters::XYZ2:
-		return std::make_shared<XYZ2>();
+		case GifRegisters::PRIM:
+			return std::make_shared<PRIM>();
+		case GifRegisters::RGBAQ:
+			return std::make_shared<RGBAQ>();
+		case GifRegisters::XYZ2:
+			return std::make_shared<XYZ2>();
 	}
 }
 
-constexpr const char *GetRegString(GifRegisters reg)
+constexpr const char* GetRegString(GifRegisters reg)
 {
 	return GifRegisterStrings[(int)reg];
 };
