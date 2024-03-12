@@ -234,7 +234,7 @@ Scan::execute(const char* data, size_t len)
 
 void print_help(char* argv0)
 {
-	fmt::print("Usage: {} <file> [--backend=<backend>] [--b<backend arguments>]\n\t"
+	fmt::print("Usage: {} <file> <output> [--backend=<backend>] [--b<backend arguments>]\n\t"
 			"Valid backends are:\n\t"
 			"  c_code(default)\n\t"
 			"    Generates a c file with an array for each gif block\n"
@@ -243,6 +243,7 @@ void print_help(char* argv0)
 
 
 std::string_view file_in = "";
+std::string_view file_out = "";
 int main(int argc, char **argv)
 {
 	if(argc < 2)
@@ -280,6 +281,10 @@ int main(int argc, char **argv)
 		{
 			file_in = arg;
 		}
+		else if (file_out.empty() && !arg.starts_with("-"))
+		{
+			file_out = arg;
+		}
 		else if(!arg.starts_with("--b"))
 		{
 			fmt::print("Unknown argument: {}\n", arg);
@@ -300,34 +305,41 @@ int main(int argc, char **argv)
 
 	machine.SetBackend(backend);
 
+	backend->set_output(file_out);
+
 	if(file_in.empty())
 	{
 		fmt::print("No input file specified\n");
 		return 1;
 	}
 
+	if(file_out.empty())
+	{
+		fmt::print("No output file specified. Printing to stdout\n");
+	}
+
     char buffer[4096];
-    FILE* f;
+    FILE* fin;
     Scan scan;
     long numbytes;
 
     //Read the whole file into the buffer.
-    f = fopen(file_in.cbegin(), "r");
-	if(f == nullptr)
+    fin = fopen(file_in.cbegin(), "r");
+	if(fin == nullptr)
 	{
 		fmt::print("Failed to open file: {}\n", file_in);
 		return 1;
 	}
-    fseek(f, 0, SEEK_END);
-    numbytes = ftell(f);
-    fseek(f, 0, SEEK_SET);
+    fseek(fin, 0, SEEK_END);
+    numbytes = ftell(fin);
+    fseek(fin, 0, SEEK_SET);
 
     if(numbytes > sizeof(buffer))
     {
         fmt::print("File is too large for internal buffer :(\n");
     }
 
-    fread(buffer, 1, numbytes, f);
+    fread(buffer, 1, numbytes, fin);
 
     //Parse the buffer in one fell swoop.
     scan.init();

@@ -24,6 +24,11 @@ class c_code_backend : public Backend
 
 	bool arg_parse(int argc, char** argv) override;
 
+	void set_output(const std::string_view& output) override
+	{
+		this->output = output;
+	};
+
 	void print_help() const override;
 
 	void emit(GIFBlock* block) override;
@@ -42,4 +47,7 @@ class c_code_backend : public Backend
 
 	private:
 	EmitMode emit_mode = EmitMode::USE_DEFS;
+	std::string_view output = "";
+	FILE* file = nullptr;
+	bool first_emit = true;
 };

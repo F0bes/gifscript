@@ -68,7 +68,27 @@ void c_code_backend::emit(GIFBlock* block)
 	buffer.pop_back();
 	buffer.pop_back();
 	buffer += "\n};\n";
-	fmt::print("{}", buffer);
+
+	if(first_emit)
+	{
+		if(output.empty())
+		{
+			file = stdout;
+		}
+		else
+		{
+			file = fopen(output.cbegin(), "w");
+			if(file == nullptr)
+			{
+				logger::error("Failed to open file: %s\n", output.cbegin());
+				return;
+			}
+		}
+		const std::string prologue = "#include <tamtypes.h>\n#include <gs_gp.h>\n#include <gif_tags.h>\n";
+		fwrite(prologue.c_str(), 1, prologue.size(), file);
+	}
+	
+	fwrite(buffer.c_str(), 1, buffer.size(), file);
 }
 
 

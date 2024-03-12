@@ -21,7 +21,7 @@ that takes in binary data and make this into a bidirectional transpiler.
 This could end up being a nifty debug tool for PS2 GS development.
 
 ## Task List:
-- Output to a file, not just stdout.
+- Output to a file, not just stdout. (Done)
 - Support more registers / modifiers.
 - Macros inside of macros.
 - Dynamic variables / arguments for macros, instead of just fixed xy offset.
