@@ -89,7 +89,7 @@ bool Machine::TryEndBlockMacro()
 	{
 		currentMacro = nullptr;
 		currentBlockMacro = nullptr;
-		return false;
+		return true;
 	}
 	else
 	{
