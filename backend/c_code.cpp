@@ -51,6 +51,10 @@ void c_code_backend::print_help() const
 
 c_code_backend::~c_code_backend()
 {
+	if(file != nullptr && file != stdout)
+	{
+		fclose(file);
+	}
 }
 
 void c_code_backend::emit(GIFBlock* block)
