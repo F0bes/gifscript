@@ -5,6 +5,7 @@
 #include <optional>
 #include <iostream>
 #include <algorithm>
+#include <memory>
 #include <fmt/core.h>
 #include <list>
 #include <map>
@@ -365,7 +366,7 @@ struct XYZ2 : public GifRegister
 struct GIFBlock
 {
 	std::string name;
-	std::list<GifRegister *> registers;
+	std::list<std::shared_ptr<GifRegister>> registers;
 
 	GIFBlock(const std::string name)
 		: name(name)
@@ -377,16 +378,16 @@ struct GIFBlock
 
 
 // gross
-constexpr GifRegister *GenReg(GifRegisters reg)
+static std::shared_ptr<GifRegister> GenReg(GifRegisters reg)
 {
 	switch (reg)
 	{
 	case GifRegisters::PRIM:
-		return new PRIM();
+		return std::make_shared<PRIM>();
 	case GifRegisters::RGBAQ:
-		return new RGBAQ();
+		return std::make_shared<RGBAQ>();
 	case GifRegisters::XYZ2:
-		return new XYZ2();
+		return std::make_shared<XYZ2>();
 	}
 }
 

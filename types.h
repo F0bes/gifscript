@@ -21,10 +21,10 @@ union Vec2
 		: i_x(x), i_y(y)
 	{}
 
-	Vec2(const char* s, const char* e)
+	Vec2(const std::string& s)
 	{
-		if(sscanf(s, "%d,%d", &i_x, &i_y) != 2)
-			throw std::runtime_error("Invalid Vec2: " + std::string(s, e));
+		if(sscanf(s.c_str(), "%d,%d", &i_x, &i_y) != 2)
+			throw std::runtime_error("Invalid Vec2: " + s);
 	}
 
 	Vec2 ftoi()
@@ -44,10 +44,10 @@ union Vec3
 		uint32_t i_x, i_y, i_z;
 	};
 
-	Vec3(const char* s, const char* e)
+	Vec3(const std::string& s)
 	{
-		if(sscanf(s, "%d,%d,%d", &i_x, &i_y, &i_z) != 3)
-			throw std::runtime_error("Invalid Vec3: " + std::string(s, e));
+		if(sscanf(s.c_str(), "%d,%d,%d", &i_x, &i_y, &i_z) != 3)
+			throw std::runtime_error("Invalid Vec3: " + s);
 	}
 
 	explicit Vec3(float x, float y, float z)
@@ -90,10 +90,10 @@ union Vec4
 
 	Vec4() = default;
 
-	Vec4(const char* s, const char* e)
+	Vec4(const std::string& s)
 	{
-		if(sscanf(s, "%d,%d,%d,%d", &i_x, &i_y, &i_z, &i_w) != 4)
-			throw std::runtime_error("Invalid Vec4: " + std::string(s, e));
+		if(sscanf(s.c_str(), "%d,%d,%d,%d", &i_x, &i_y, &i_z, &i_w) != 4)
+			throw std::runtime_error("Invalid Vec4: " + s);
 	}
 
 	explicit Vec4(float x, float y, float z, float w)

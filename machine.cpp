@@ -145,13 +145,13 @@ bool Machine::TryInsertMacro(const std::string name, Vec2 v)
 		{
 			GIFBlock tmpMacro = GIFBlock(macro->second);
 
-			for(auto& reg : tmpMacro.registers)
+			for(auto reg : tmpMacro.registers)
 			{
 				if(reg->GetID() == 0x05)
 				{
-					XYZ2* xyz2 = dynamic_cast<XYZ2*>(reg);
+					XYZ2 xyz2 = dynamic_cast<XYZ2&>(*reg);
 					
-					XYZ2* tmpXYZ2 = new XYZ2(*xyz2);
+					auto tmpXYZ2 = std::make_shared<XYZ2>(xyz2);
 					
 					tmpXYZ2->value->i_x += v.i_x;
 					tmpXYZ2->value->i_y += v.i_y;
@@ -169,7 +169,7 @@ bool Machine::TryInsertMacro(const std::string name, Vec2 v)
 		}
 	}
 }
-bool Machine::TrySetRegister(GifRegister* reg)
+bool Machine::TrySetRegister(std::shared_ptr<GifRegister> reg)
 {
 	if(!currentBlockMacro)
 	{
@@ -184,7 +184,6 @@ bool Machine::TrySetRegister(GifRegister* reg)
 		currentRegister = currentBlockMacro->registers.emplace_back(reg);
 		return true;
 	}
-	delete reg;
 	return false;
 }
 

@@ -19,8 +19,7 @@
 %token_type {std::any *}
 %token_destructor { delete $$; }
 
-%type VEC2 {std::any *}
-
+//%destructor IDENTIFIER { delete $$; }
 %extra_argument { bool* valid }
 
 program ::= create_block. 
@@ -34,6 +33,8 @@ program ::= insert_macro.
 set_register ::= REG(A). {
 	*valid = false;
 	std::cout << "Register" << GetRegString(std::any_cast<GifRegisters>(*A)) << "requires a value" << std::endl;
+
+	delete A;
 }
 
 set_register ::= REG(A) VEC4(B). {
@@ -42,6 +43,9 @@ set_register ::= REG(A) VEC4(B). {
 	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A))) || !machine.TryPushReg(val)) {
 		*valid = false;
 	}
+
+	delete A;
+	delete B;
 }
 
 set_register ::= REG(A) VEC3(B). {
@@ -50,6 +54,9 @@ set_register ::= REG(A) VEC3(B). {
 	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A))) || !machine.TryPushReg(val)) {
 		*valid = false;
 	}
+
+	delete A;
+	delete B;
 }
 
 set_register ::= REG(A) MOD(B). {
@@ -58,7 +65,10 @@ set_register ::= REG(A) MOD(B). {
 	|| !machine.TryApplyModifier(std::any_cast<RegModifier>(*B))) {
 		*valid = false;
 	}
-}//
+
+	delete A;
+	delete B;
+}
 
 set_register ::= REG(A) MOD(B) MOD(C). {
 	std::cout << "Parsed " << GetRegString(std::any_cast<GifRegisters>(*A)) << " <mod> <mod>" << std::endl;
@@ -67,6 +77,10 @@ set_register ::= REG(A) MOD(B) MOD(C). {
 	|| !machine.TryApplyModifier(std::any_cast<RegModifier>(*C))) {
 		*valid = false;
 	}
+
+	delete A;
+	delete B;
+	delete C;
 }
 
 set_register ::= REG(A) MOD(B) MOD(C) MOD(D). {
@@ -77,6 +91,11 @@ set_register ::= REG(A) MOD(B) MOD(C) MOD(D). {
 	|| !machine.TryApplyModifier(std::any_cast<RegModifier>(*D))) {
 		*valid = false;
 	}
+
+	delete A;
+	delete B;
+	delete C;
+	delete D;
 }
 
 set_register ::= REG(A) MOD(B) MOD(C) MOD(D) MOD(E). {
@@ -88,6 +107,12 @@ set_register ::= REG(A) MOD(B) MOD(C) MOD(D) MOD(E). {
 	|| !machine.TryApplyModifier(std::any_cast<RegModifier>(*E))) {
 		*valid = false;
 	}
+
+	delete A;
+	delete B;
+	delete C;
+	delete D;
+	delete E; 
 }
 
 // Block madness
@@ -95,22 +120,31 @@ set_register ::= REG(A) MOD(B) MOD(C) MOD(D) MOD(E). {
 create_block ::= IDENTIFIER(A) BLOCK_START. {
 	std::cout << "Parsed block " << std::any_cast<std::string>(*A) << std::endl;
 	*valid = machine.TryStartBlock(std::any_cast<std::string>(*A));
+
+	delete A;
 }
 
 create_macro ::= MACRO IDENTIFIER(A) BLOCK_START. {
 	std::cout << "Parsed macro " << std::any_cast<std::string>(*A) << std::endl;
 	*valid = machine.TryStartMacro(std::any_cast<std::string>(*A));
+
+	delete A;
 }
 
 
 insert_macro ::= MACRO IDENTIFIER(A). {
 	std::cout << "Inserting macro " << std::any_cast<std::string>(*A) << std::endl;
 	*valid = machine.TryInsertMacro(std::any_cast<std::string>(*A));
+
+	delete A;
 }
 
 insert_macro ::= MACRO IDENTIFIER(A) VEC2(B). {
 	std::cout << "Inserting macro " << std::any_cast<std::string>(*A) << " with vec2" << std::endl;
 	*valid = machine.TryInsertMacro(std::any_cast<std::string>(*A), std::any_cast<Vec2>(*B));
+
+	delete A;
+	delete B;
 }
 
 end_block ::= BLOCK_END. {

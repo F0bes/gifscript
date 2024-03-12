@@ -25,7 +25,7 @@ This could end up being a nifty debug tool for PS2 GS development.
 - Support more registers / modifiers.
 - Macros inside of macros.
 - Dynamic variables / arguments for macros, instead of just fixed xy offset.
-- Fix memory leaks. Look into smart pointers for register allocation.
+- Fix memory leaks. Look into smart pointers for register allocation. (done)
 - External variable support. Design is still under thought.
 - Binary data backend.
 - Support PACKED formats when available.

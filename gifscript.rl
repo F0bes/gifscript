@@ -34,21 +34,24 @@ static Backend* backend = nullptr;
 	}
 
 	action vec4_tok {
-		Parse(lparser, VEC4, new std::any(Vec4(ts, te)), &valid);
+		std::string s(ts, te - ts);
+		Parse(lparser, VEC4, new std::any(Vec4(s)), &valid);
 		if(!valid) {
 			logger::error("Unexpected vec4!");
 		}
 	}
 
 	action vec3_tok {
-		Parse(lparser, VEC3, new std::any(Vec3(ts, te)), &valid);
+		std::string s(ts, te - ts);
+		Parse(lparser, VEC3, new std::any(Vec3(s)), &valid);
 		if(!valid) {
 			logger::error("Unexpected vec3!");
 		}
 	}
 
 	action vec2_tok {
-		Parse(lparser, VEC2, new std::any(Vec2(ts, te)), &valid);
+		std::string s(ts, te - ts);
+		Parse(lparser, VEC2, new std::any(Vec2(s)), &valid);
 		if(!valid) {
 			logger::error("Unexpected vec2!");
 		}
@@ -203,8 +206,8 @@ public:
 private:
     int cs;
     int act;
-    const char* ts;
-    const char* te;
+    const char* ts = nullptr;
+    const char* te = nullptr;
 
     void* lparser;
 };
@@ -345,5 +348,6 @@ int main(int argc, char **argv)
     scan.init();
     scan.execute(buffer, numbytes);
 	delete backend;
+	fclose(fin);
     return 0;
 }

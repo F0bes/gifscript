@@ -34,11 +34,11 @@ class c_code_backend : public Backend
 	void emit(GIFBlock* block) override;
 
 	// Primitive dispatching
-	static std::string emit_primitive(c_code_backend*, GifRegister* reg);
-	static std::string emit_rgbaq(c_code_backend*,GifRegister* reg);
-	static std::string emit_xyz2(c_code_backend*,GifRegister* reg);
+	static std::string emit_primitive(c_code_backend*, std::shared_ptr<GifRegister> reg);
+	static std::string emit_rgbaq(c_code_backend*,std::shared_ptr<GifRegister> reg);
+	static std::string emit_xyz2(c_code_backend*,std::shared_ptr<GifRegister> reg);
 
-	std::unordered_map<uint32_t, std::function<std::string(c_code_backend*, GifRegister*)>> dispatch_table = 
+	std::unordered_map<uint32_t, std::function<std::string(c_code_backend*, std::shared_ptr<GifRegister>)>> dispatch_table = 
 	{
 		{0, c_code_backend::emit_primitive},
 		{1, c_code_backend::emit_rgbaq},

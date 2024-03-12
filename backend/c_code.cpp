@@ -92,41 +92,41 @@ void c_code_backend::emit(GIFBlock* block)
 }
 
 
-std::string c_code_backend::emit_primitive(c_code_backend* inst, GifRegister* reg)
+std::string c_code_backend::emit_primitive(c_code_backend* inst,std::shared_ptr<GifRegister> reg)
 {
-	PRIM *prim = dynamic_cast<PRIM*>(reg);
+	PRIM prim = dynamic_cast<PRIM&>(*reg);
 	if(inst->emit_mode == EmitMode::USE_DEFS)
 	{
 		return fmt::format("GS_SET_PRIM({},{},0,0,0,{},0,0,0),GS_REG_PRIM,",
-			PrimTypeStrings[prim->GetType()],
-			prim->IsGouraud() ? "GS_ENABLE" : "GS_DISABLE",
-			prim->IsAA1() ? "GS_ENABLE" : "GS_DISABLE");
+			PrimTypeStrings[prim.GetType()],
+			prim.IsGouraud() ? "GS_ENABLE" : "GS_DISABLE",
+			prim.IsAA1() ? "GS_ENABLE" : "GS_DISABLE");
 	}
 	else
 	{
 		return fmt::format("GS_SET_PRIM({},{:d},0,0,0,{:d},0,0,0),0x00,",
-			static_cast<int>(prim->GetType()),
-			prim->IsGouraud(),
-			prim->IsAA1());
+			static_cast<int>(prim.GetType()),
+			prim.IsGouraud(),
+			prim.IsAA1());
 	}
 }
 
-std::string c_code_backend::emit_rgbaq(c_code_backend* inst, GifRegister* reg)
+std::string c_code_backend::emit_rgbaq(c_code_backend* inst,std::shared_ptr<GifRegister> reg)
 {
-	RGBAQ *rgbaq = dynamic_cast<RGBAQ*>(reg);
+	RGBAQ rgbaq = dynamic_cast<RGBAQ&>(*reg);
 
-	auto val = rgbaq->GetValue();
+	auto val = rgbaq.GetValue();
 
 	return fmt::format("GS_SET_RGBAQ(0x{:02x},0x{:02x},0x{:02x},0x{:02x},0x{:02x}),{},",
 			val.i_x, val.i_y, val.i_z, val.i_w, 0, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_RGBAQ" : "0x01");
 
 }
 
-std::string c_code_backend::emit_xyz2(c_code_backend* inst, GifRegister* reg)
+std::string c_code_backend::emit_xyz2(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
 {
-	XYZ2 *xyz2 = dynamic_cast<XYZ2*>(reg);
+	XYZ2 xyz2 = dynamic_cast<XYZ2&>(*reg);
 
-	auto val = xyz2->GetValue();
+	auto val = xyz2.GetValue();
 	
 	return fmt::format("GS_SET_XYZ({}<<4,{}<<4,{}),{},",
 		val.i_x, val.i_y, val.i_z, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_XYZ2" : "0x05");
