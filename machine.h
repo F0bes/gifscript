@@ -3,6 +3,7 @@
 #include <string>
 #include <list>
 #include <map>
+#include <bitset>
 
 #include "registers.h"
 #include "backend/backend.hpp"
@@ -22,7 +23,14 @@ class Machine
 
 	std::shared_ptr<GifRegister> currentRegister;
 
+	std::bitset<8> OptimizeConfig = std::bitset<8>().set();
+
 public:
+	enum Optimization
+	{
+		DEAD_STORE_ELIMINATION = 1
+	};
+
 	~Machine()
 	{
 		blocks.clear();
@@ -41,6 +49,14 @@ public:
 	bool TryPushReg(Vec3 v3);
 	bool TryPushReg(Vec4 v4);
 	bool TryApplyModifier(RegModifier mod);
+
+	void DisableOptimization(Optimization op)
+	{
+		OptimizeConfig[op] = false;
+	}
+
+private:
+	void FirstPassOptimize();
 };
 
 extern Machine machine;

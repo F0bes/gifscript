@@ -80,6 +80,7 @@ bool Machine::TryEndBlockMacro()
 {
 	if (currentBlock)
 	{
+		FirstPassOptimize();
 		backend->emit(currentBlock);
 		currentBlock = nullptr;
 		currentBlockMacro = nullptr;
@@ -244,5 +245,40 @@ bool Machine::TryApplyModifier(RegModifier mod)
 	{
 		logger::error("There is no block or register to apply a modifier to.");
 		return false;
+	}
+}
+
+// First pass, doesn't know anything about the output format
+// Second pass would be in the backend
+void Machine::FirstPassOptimize()
+{
+	// Dead store Elimination
+	if (OptimizeConfig[DEAD_STORE_ELIMINATION])
+	{
+		std::shared_ptr<GifRegister> lastReg = nullptr;
+		for (auto reg : currentBlock->registers)
+		{
+			if (reg->HasSideEffects())
+			{
+				lastReg = nullptr;
+			}
+			else if (lastReg)
+			{
+				if (lastReg->GetID() == reg->GetID())
+				{
+					logger::info("Dead store elimination: %s", lastReg->GetName().cbegin());
+					currentBlock->registers.remove(lastReg);
+					lastReg = reg;
+				}
+				else
+				{
+					lastReg = reg;
+				}
+			}
+			else
+			{
+				lastReg = reg;
+			}
+		}
 	}
 }

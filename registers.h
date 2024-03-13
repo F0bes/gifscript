@@ -58,14 +58,17 @@ enum class RAT
 class GifRegister
 {
 	RAT rat;
+	bool sideEffects;
 	std::string_view name;
 	uint32_t id;
 
 public:
-	constexpr GifRegister(uint32_t id, const std::string_view name, RAT rat)
+	// Set sideEffects to true if the register should not be considered for dead store elimination
+	constexpr GifRegister(uint32_t id, const std::string_view name, RAT rat, bool sideEffects = false)
 		: id(id)
 		, name(name)
 		, rat(rat)
+		, sideEffects(sideEffects)
 	{
 	}
 
@@ -79,6 +82,10 @@ public:
 	constexpr bool RequiresAD()
 	{
 		return rat == RAT::AD;
+	}
+	constexpr bool HasSideEffects()
+	{
+		return sideEffects;
 	}
 
 	constexpr std::string_view GetName()
@@ -305,7 +312,7 @@ struct XYZ2 : public GifRegister
 	std::optional<Vec3> value;
 
 	XYZ2()
-		: GifRegister(0x05, "XYZ2", RAT::ADP)
+		: GifRegister(0x05, "XYZ2", RAT::ADP, true)
 	{
 	}
 

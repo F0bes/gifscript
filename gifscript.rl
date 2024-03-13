@@ -238,6 +238,9 @@ Scan::execute(const char* data, size_t len)
 void print_help(char* argv0)
 {
 	fmt::print("Usage: {} <file> <output> [--backend=<backend>] [--b<backend arguments>]\n\t"
+			"Optimization settings:\n\t"
+			"  --keep-deadstore\n\t"
+			"    Disables dead store optimization. (Consecutive writes to stateless registers)\n\t"
 			"Valid backends are:\n\t"
 			"  c_code(default)\n\t"
 			"    Generates a c file with an array for each gif block\n"
@@ -279,6 +282,10 @@ int main(int argc, char **argv)
 		{
 			print_help(argv[0]);
 			return 1;
+		}
+		else if (arg == "--keep-deadstore")
+		{
+			machine.DisableOptimization(Machine::Optimization::DEAD_STORE_ELIMINATION);
 		}
 		else if(file_in.empty() && !arg.starts_with("-"))
 		{
