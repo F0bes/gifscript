@@ -321,7 +321,7 @@ int main(int argc, char **argv)
 		fmt::print("No output file specified. Printing to stdout\n");
 	}
 
-    char buffer[4096];
+    char buffer[8192];
     FILE* fin;
     Scan scan;
     long numbytes;
@@ -339,7 +339,8 @@ int main(int argc, char **argv)
 
     if(numbytes > sizeof(buffer))
     {
-        fmt::print("File is too large for internal buffer :(\n");
+        fmt::print("File {} bytes is too large for internal buffer {} bytes :(\n", numbytes, sizeof(buffer));
+		return 1;
     }
 
     fread(buffer, 1, numbytes, fin);

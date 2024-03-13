@@ -82,7 +82,7 @@ void c_code_backend::emit(GIFBlock* block)
 		}
 		else
 		{
-			file = fopen(output.cbegin(), "w");
+			file = fopen(output.c_str(), "w");
 			if (file == nullptr)
 			{
 				logger::error("Failed to open file: %s\n", output.cbegin());

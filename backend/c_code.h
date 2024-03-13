@@ -46,7 +46,7 @@ public:
 
 private:
 	EmitMode emit_mode = EmitMode::USE_DEFS;
-	std::string_view output = "";
+	std::string output = "";
 	FILE* file = nullptr;
 	bool first_emit = true;
 };

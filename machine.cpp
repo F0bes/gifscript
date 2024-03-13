@@ -100,14 +100,10 @@ bool Machine::TryEndBlockMacro()
 
 bool Machine::TryInsertMacro(const std::string name)
 {
-	if (currentMacro)
+
+	if (!currentBlockMacro)
 	{
-		logger::error("Support for nested macros is not implemented yet!\n");
-		return false;
-	}
-	else if (!currentBlock)
-	{
-		logger::error("No block to insert macro into\n");
+		logger::error("No block or macro to insert macro into\n");
 		return false;
 	}
 	else
@@ -115,7 +111,7 @@ bool Machine::TryInsertMacro(const std::string name)
 		auto macro = macros.find(name);
 		if (macro != macros.end())
 		{
-			currentBlock->registers.insert(currentBlock->registers.end(), macro->second.registers.begin(), macro->second.registers.end());
+			currentBlockMacro->registers.insert(currentBlock->registers.end(), macro->second.registers.begin(), macro->second.registers.end());
 			return true;
 		}
 		else
@@ -128,14 +124,9 @@ bool Machine::TryInsertMacro(const std::string name)
 
 bool Machine::TryInsertMacro(const std::string name, Vec2 v)
 {
-	if (currentMacro)
+	if (!currentBlockMacro)
 	{
-		logger::error("Support for nested macros is not implemented yet!\n");
-		return false;
-	}
-	else if (!currentBlock)
-	{
-		logger::error("No block to insert macro into\n");
+		logger::error("No block or macro to insert macro into\n");
 		return false;
 	}
 	else
@@ -155,10 +146,10 @@ bool Machine::TryInsertMacro(const std::string name, Vec2 v)
 
 					tmpXYZ2->value->i_x += v.i_x;
 					tmpXYZ2->value->i_y += v.i_y;
-					currentBlock->registers.push_back(tmpXYZ2);
+					currentBlockMacro->registers.push_back(tmpXYZ2);
 				}
 				else
-					currentBlock->registers.push_back(reg);
+					currentBlockMacro->registers.push_back(reg);
 			}
 			return true;
 		}

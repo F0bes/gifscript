@@ -23,7 +23,6 @@ class Machine
 	std::shared_ptr<GifRegister> currentRegister;
 
 public:
-	// this still leaks memory
 	~Machine()
 	{
 		blocks.clear();

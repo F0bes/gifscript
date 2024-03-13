@@ -23,7 +23,7 @@ This could end up being a nifty debug tool for PS2 GS development.
 ## Task List:
 - Output to a file, not just stdout. (Done)
 - Support more registers / modifiers.
-- Macros inside of macros.
+- Macros inside of macros. (Done)
 - Dynamic variables / arguments for macros, instead of just fixed xy offset.
 - Fix memory leaks. Look into smart pointers for register allocation. (done)
 - External variable support. Design is still under thought.
