@@ -375,6 +375,7 @@ struct XYZ2 : public GifRegister
 struct GIFBlock
 {
 	std::string name;
+	std::shared_ptr<PRIM> prim = nullptr;
 	std::list<std::shared_ptr<GifRegister>> registers;
 
 	GIFBlock(const std::string name)

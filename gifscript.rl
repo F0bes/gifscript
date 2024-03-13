@@ -241,6 +241,8 @@ void print_help(char* argv0)
 			"Optimization settings:\n\t"
 			"  --keep-deadstore\n\t"
 			"    Disables dead store optimization. (Consecutive writes to stateless registers)\n\t"
+			" --no-tag-prim\n\t"
+			"    Disables packing the first PRIM write into the GIFTag\n\t"
 			"Valid backends are:\n\t"
 			"  c_code(default)\n\t"
 			"    Generates a c file with an array for each gif block\n"
@@ -286,6 +288,10 @@ int main(int argc, char **argv)
 		else if (arg == "--keep-deadstore")
 		{
 			machine.DisableOptimization(Machine::Optimization::DEAD_STORE_ELIMINATION);
+		}
+		else if (arg == "--no-tag-prim")
+		{
+			machine.DisableOptimization(Machine::Optimization::USE_TAG_PRIM);
 		}
 		else if(file_in.empty() && !arg.starts_with("-"))
 		{

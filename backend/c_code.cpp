@@ -59,10 +59,28 @@ c_code_backend::~c_code_backend()
 
 void c_code_backend::emit(GIFBlock* block)
 {
+	std::string prim_str;
+	if(block->prim)
+	{
+		if(emit_mode == EmitMode::USE_DEFS)
+		{
+			prim_str = fmt::format("GS_SET_PRIM({},{},0,0,0,{},0,0,0)", PrimTypeStrings[block->prim->GetType()],
+				block->prim->IsGouraud() ? "GS_ENABLE" : "GS_DISABLE",
+				block->prim->IsAA1() ? "GS_ENABLE" : "GS_DISABLE");
+		}
+		else
+		{
+			prim_str = fmt::format("GS_SET_PRIM({},{:d},0,0,0,{:d},0,0,0)", static_cast<int>(block->prim->GetType()),
+				block->prim->IsGouraud(),
+				block->prim->IsAA1());
+		}
+	}
+
 	std::string buffer = fmt::format("u64 {1}_data_size = {0};\n"
 									 "u64 {1}_data[] __attribute__((aligned(16))) = {{\n\t"
-									 "GIF_SET_TAG({2},1,0,0,0,1),GIF_REG_AD,\n\t",
-		(block->registers.size() + 1) * 16, block->name, block->registers.size());
+									 "GIF_SET_TAG({2},1,{3},{4},0,1),GIF_REG_AD,\n\t",
+		(block->registers.size() + 1) * 16, block->name, block->registers.size()
+		, block->prim ? 1 : 0, block->prim ? prim_str : "0");
 	fmt::print("Emitting block: {}\n", block->name);
 	for (auto& reg : block->registers)
 	{

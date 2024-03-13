@@ -281,4 +281,19 @@ void Machine::FirstPassOptimize()
 			}
 		}
 	}
+
+	// Packing Prim into GIFTAG (should have no side effects)
+	if(OptimizeConfig[USE_TAG_PRIM])
+	{
+		for(auto reg : currentBlock->registers)
+		{
+			if(reg->GetID() == 0)
+			{
+				logger::info("Packing Prim into GIFTAG");
+				currentBlock->prim = std::static_pointer_cast<PRIM>(reg);
+				currentBlock->registers.remove(reg);
+				break;
+			}
+		}
+	}
 }

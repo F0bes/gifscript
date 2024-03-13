@@ -28,7 +28,8 @@ class Machine
 public:
 	enum Optimization
 	{
-		DEAD_STORE_ELIMINATION = 1
+		DEAD_STORE_ELIMINATION = 1,
+		USE_TAG_PRIM = 2,
 	};
 
 	~Machine()
