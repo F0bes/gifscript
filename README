@@ -30,10 +30,10 @@ This could end up being a nifty debug tool for PS2 GS development.
 - Binary data backend.
 - Support PACKED formats when available.
 - Heuristic for REGLIST / AD precision problems.
-- Move first PRIM into GIFTAG.
-- Optimizations? IE: cull writes to a register that has no side effects twice.
+- Move first PRIM into GIFTAG.(done)
+- Optimizations? IE: cull writes to a register that has no side effects twice. (first pass system done)
 - Handle super sized gif packets that require more than one packet.
-- Errors needs to propagate back instead of continuing in an error state.
+- Errors needs to propagate back instead of continuing in an error state. (kind of done)
 
 ## Design Details
 This may be incorrect by the time you read this. But here is the outline of how
