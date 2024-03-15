@@ -447,8 +447,8 @@ void print_help(char* argv0)
 };
 
 
-std::string_view file_in = "";
-std::string_view file_out = "";
+std::string file_in = "";
+std::string file_out = "";
 int main(int argc, char **argv)
 {
     if(argc < 2)
@@ -541,7 +541,7 @@ int main(int argc, char **argv)
     long numbytes;
 
     //Read the whole file into the buffer.
-    fin = fopen(file_in.cbegin(), "r");
+    fin = fopen(file_in.c_str(), "r");
     if(fin == nullptr)
     {
         fmt::print("Failed to open file: {}\n", file_in);

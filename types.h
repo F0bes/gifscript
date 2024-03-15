@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <stdexcept>
+#include <fmt/format.h>
 
 union Vec2
 {
@@ -89,7 +90,7 @@ union Vec3
 
 	std::string toString()
 	{
-		return std::to_string(i_x) + ", " + std::to_string(i_y) + ", " + std::to_string(i_z);
+		return fmt::format("{}, {}, {}", i_x, i_y, i_z);
 	}
 };
 
@@ -151,6 +152,6 @@ union Vec4
 
 	std::string toString()
 	{
-		return std::to_string(i_x) + ", " + std::to_string(i_y) + ", " + std::to_string(i_z) + ", " + std::to_string(i_w);
+		return fmt::format("{}, {}, {}, {}", i_x, i_y, i_z, i_w);
 	}
 };

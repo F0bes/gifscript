@@ -14,8 +14,10 @@ struct fmt_location
     fmt_location(const char *fmt, const std::source_location &location = std::source_location::current()) : fmt(fmt), location(location) {}
 };
 
+#ifndef _WIN32
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wformat-security"
+#endif
 template <typename... Args>
 void log(fmt_location format, fmt::color fgcol, Args &&...args)
 {
@@ -26,7 +28,9 @@ void log(fmt_location format, fmt::color fgcol, Args &&...args)
 
     delete[] buf;
 }
+#ifndef _WIN32
 # pragma GCC diagnostic pop
+#endif
 
 template <typename... Args>
 void info(fmt_location format, Args &&...args)
