@@ -188,6 +188,16 @@ std::string c_code_backend::emit_scissor(c_code_backend* inst, std::shared_ptr<G
 		val.i_x, val.i_y, val.i_z, val.i_w, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_SCISSOR" : "0x40");
 }
 
+std::string c_code_backend::emit_signal(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
+{
+	SIGNAL signal = dynamic_cast<SIGNAL&>(*reg);
+
+	auto val = signal.GetValue();
+
+	return fmt::format("GS_SET_SIGNAL(0x{:02x},0x{:02x}),{},",
+		val.i_x,val.i_y, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_SIGNAL" : "0x60");
+}
+
 std::string c_code_backend::emit_finish(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
 {
 	FINISH finish = dynamic_cast<FINISH&>(*reg);

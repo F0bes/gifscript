@@ -59,6 +59,17 @@ set_register ::= REG(A) VEC3(B). {
 	delete B;
 }
 
+set_register ::= REG(A) VEC2(B). {
+	std::cout << "Parsed " << GetRegString(std::any_cast<GifRegisters>(*A)) << " <vec2>" << std::endl;
+	Vec2 val = std::any_cast<Vec2>(*B);
+	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A))) || !machine.TryPushReg(val)) {
+		*valid = false;
+	}
+
+	delete A;
+	delete B;
+}
+
 set_register ::= REG(A) MOD(B). {
 	std::cout << "Parsed " << GetRegString(std::any_cast<GifRegisters>(*A)) << " <mod>" << std::endl;
 	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A)))

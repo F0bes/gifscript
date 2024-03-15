@@ -70,6 +70,13 @@ void FailError(const char* ts, const char* te);
         }
     }
 
+    action signal_tok {
+        Parse(lparser, REG, new std::any(GifRegisters::SIGNAL), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
     action finish_tok {
         Parse(lparser, REG, new std::any(GifRegisters::FINISH), &valid);
         if(!valid) {
@@ -251,6 +258,7 @@ void FailError(const char* ts, const char* te);
     fog = /fog/i;
     fogcol = /fogcol/i;
     scissor = /scissor/i;
+    signal = /signal/i;
     finish = /finish/i;
 
     # Modifiers
@@ -301,6 +309,7 @@ void FailError(const char* ts, const char* te);
         fog => fog_tok;
         fogcol => fogcol_tok;
         scissor => scissor_tok;
+        signal => signal_tok;
         finish => finish_tok;
 
         # Modifiers

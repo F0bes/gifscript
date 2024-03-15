@@ -40,6 +40,7 @@ public:
 	static std::string emit_fog(c_code_backend*, std::shared_ptr<GifRegister> reg);
 	static std::string emit_fogcol(c_code_backend*, std::shared_ptr<GifRegister> reg);
 	static std::string emit_scissor(c_code_backend*, std::shared_ptr<GifRegister> reg);
+	static std::string emit_signal(c_code_backend*, std::shared_ptr<GifRegister> reg);
 	static std::string emit_finish(c_code_backend*, std::shared_ptr<GifRegister> reg);
 
 	std::unordered_map<uint32_t, std::function<std::string(c_code_backend*, std::shared_ptr<GifRegister>)>> dispatch_table =
@@ -50,6 +51,7 @@ public:
 			{0x0A, c_code_backend::emit_fog},
 			{0x3D, c_code_backend::emit_fogcol},
 			{0x40, c_code_backend::emit_scissor},
+			{0x60, c_code_backend::emit_signal},
 			{0x61, c_code_backend::emit_finish}};
 
 private:
