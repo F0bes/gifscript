@@ -177,3 +177,13 @@ std::string c_code_backend::emit_fogcol(c_code_backend* inst, std::shared_ptr<Gi
 	return fmt::format("GS_SET_FOGCOL(0x{:02x},0x{:02x},0x{:02x}),{},",
 		val.i_x, val.i_y, val.i_z, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_FOGCOL" : "0x3D");
 }
+
+std::string c_code_backend::emit_scissor(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
+{
+	SCISSOR scissor = dynamic_cast<SCISSOR&>(*reg);
+
+	auto val = scissor.GetValue();
+
+	return fmt::format("GS_SET_SCISSOR({},{},{},{}),{},",
+		val.i_x, val.i_y, val.i_z, val.i_w, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_SCISSOR" : "0x40");
+}

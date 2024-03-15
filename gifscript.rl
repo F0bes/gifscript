@@ -61,6 +61,13 @@ void FailError(const char* ts, const char* te);
         }
     }
 
+    action scissor_tok {
+        Parse(lparser, REG, new std::any(GifRegisters::SCISSOR), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
     action vec4_tok {
         std::string s(ts, te - ts);
         Parse(lparser, VEC4, new std::any(Vec4(s)), &valid);
@@ -227,6 +234,7 @@ void FailError(const char* ts, const char* te);
     prim = /prim/i;
     fog = /fog/i;
     fogcol = /fogcol/i;
+    scissor = /scissor/i;
 
     # Modifiers
         # Primitive Types
@@ -273,6 +281,7 @@ void FailError(const char* ts, const char* te);
         prim => prim_tok;
         fog => fog_tok;
         fogcol => fogcol_tok;
+        scissor => scissor_tok;
         vec4 => vec4_tok;
         vec3 => vec3_tok;
         vec2 => vec2_tok;

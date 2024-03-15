@@ -16,7 +16,8 @@ enum class GifRegisters
 	RGBAQ,
 	XYZ2,
 	FOG,
-	FOGCOL
+	FOGCOL,
+	SCISSOR,
 };
 
 const char* const GifRegisterStrings[] = {
@@ -24,7 +25,8 @@ const char* const GifRegisterStrings[] = {
 	"RGBAQ",
 	"XYZ2",
 	"FOG",
-	"FOGCOL"};
+	"FOGCOL",
+	"SCISSOR"};
 
 
 enum RegModifier : uint32_t
@@ -519,6 +521,72 @@ public:
 	}
 };
 
+class SCISSOR : public GifRegister
+{
+	std::optional<Vec4> value;
+
+public:
+	SCISSOR()
+		: GifRegister(0x40, "SCISSOR", RAT::AD)
+	{
+	}
+
+	bool Ready() override
+	{
+		return value.has_value();
+	}
+
+	void Push(int32_t) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Push(Vec2) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Push(Vec3) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Push(Vec4 v4) override
+	{
+		value = v4;
+	}
+
+	void Pushf(int32_t) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Pushf(Vec2) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Pushf(Vec3) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Pushf(Vec4) override
+	{
+		logger::error("Not supported!");
+	}
+
+	bool ApplyModifier(RegModifier) override
+	{
+		return false;
+	}
+
+	Vec4 GetValue()
+	{
+		return value.value();
+	}
+};
+
 struct GIFBlock
 {
 	std::string name;
@@ -549,6 +617,8 @@ static std::shared_ptr<GifRegister> GenReg(GifRegisters reg)
 			return std::make_shared<FOG>();
 		case GifRegisters::FOGCOL:
 			return std::make_shared<FOGCOL>();
+		case GifRegisters::SCISSOR:
+			return std::make_shared<SCISSOR>();
 	}
 }
 
