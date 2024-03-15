@@ -64,14 +64,16 @@ void c_code_backend::emit(GIFBlock* block)
 	{
 		if(emit_mode == EmitMode::USE_DEFS)
 		{
-			prim_str = fmt::format("GS_SET_PRIM({},{},0,0,0,{},0,0,0)", PrimTypeStrings[block->prim->GetType()],
+			prim_str = fmt::format("GS_SET_PRIM({},{},0,{},0,{},0,0,0)", PrimTypeStrings[block->prim->GetType()],
 				block->prim->IsGouraud() ? "GS_ENABLE" : "GS_DISABLE",
+				block->prim->IsFogging() ? "GS_ENABLE" : "GS_DISABLE",
 				block->prim->IsAA1() ? "GS_ENABLE" : "GS_DISABLE");
 		}
 		else
 		{
-			prim_str = fmt::format("GS_SET_PRIM({},{:d},0,0,0,{:d},0,0,0)", static_cast<int>(block->prim->GetType()),
+			prim_str = fmt::format("GS_SET_PRIM({},{:d},0,{:d},0,{:d},0,0,0)", static_cast<int>(block->prim->GetType()),
 				block->prim->IsGouraud(),
+				block->prim->IsFogging(),
 				block->prim->IsAA1());
 		}
 	}
@@ -120,16 +122,18 @@ std::string c_code_backend::emit_primitive(c_code_backend* inst, std::shared_ptr
 	PRIM prim = dynamic_cast<PRIM&>(*reg);
 	if (inst->emit_mode == EmitMode::USE_DEFS)
 	{
-		return fmt::format("GS_SET_PRIM({},{},0,0,0,{},0,0,0),GS_REG_PRIM,",
+		return fmt::format("GS_SET_PRIM({},{},0,{},0,{},0,0,0),GS_REG_PRIM,",
 			PrimTypeStrings[prim.GetType()],
 			prim.IsGouraud() ? "GS_ENABLE" : "GS_DISABLE",
+			prim.IsFogging() ? "GS_ENABLE" : "GS_DISABLE",
 			prim.IsAA1() ? "GS_ENABLE" : "GS_DISABLE");
 	}
 	else
 	{
-		return fmt::format("GS_SET_PRIM({},{:d},0,0,0,{:d},0,0,0),0x00,",
+		return fmt::format("GS_SET_PRIM({},{:d},0,{:d},0,{:d},0,0,0),0x00,",
 			static_cast<int>(prim.GetType()),
 			prim.IsGouraud(),
+			prim.IsFogging(),
 			prim.IsAA1());
 	}
 }
@@ -152,4 +156,24 @@ std::string c_code_backend::emit_xyz2(c_code_backend* inst, std::shared_ptr<GifR
 
 	return fmt::format("GS_SET_XYZ({}<<4,{}<<4,{}),{},",
 		val.i_x, val.i_y, val.i_z, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_XYZ2" : "0x05");
+}
+
+std::string c_code_backend::emit_fog(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
+{
+	FOG fog = dynamic_cast<FOG&>(*reg);
+
+	auto val = fog.GetValue();
+
+	return fmt::format("GS_SET_FOG(0x{:02x}),{},",
+		val, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_FOG" : "0x0A");
+}
+
+std::string c_code_backend::emit_fogcol(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
+{
+	FOGCOL fogcol = dynamic_cast<FOGCOL&>(*reg);
+
+	auto val = fogcol.GetValue();
+
+	return fmt::format("GS_SET_FOGCOL(0x{:02x},0x{:02x},0x{:02x}),{},",
+		val.i_x, val.i_y, val.i_z, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_FOGCOL" : "0x3D");
 }

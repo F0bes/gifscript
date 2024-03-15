@@ -20,7 +20,7 @@ static bool pByLine = true;
 void FailError(const char* ts, const char* te);
 
 %%{
-    machine gifscript; 
+    machine gifscript;
 
     action semi_tok{
         Parse(lparser, 0, 0, &valid);
@@ -47,6 +47,20 @@ void FailError(const char* ts, const char* te);
         }
     }
 
+    action fog_tok {
+        Parse(lparser, REG, new std::any(GifRegisters::FOG), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
+    action fogcol_tok {
+        Parse(lparser, REG, new std::any(GifRegisters::FOGCOL), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
     action vec4_tok {
         std::string s(ts, te - ts);
         Parse(lparser, VEC4, new std::any(Vec4(s)), &valid);
@@ -67,6 +81,26 @@ void FailError(const char* ts, const char* te);
         std::string s(ts, te - ts);
         Parse(lparser, VEC2, new std::any(Vec2(s)), &valid);
         if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
+    action int_const_tok {
+        std::string s(ts, te - ts);
+        std::cout << "Big test" << s << std::endl;
+        Parse(lparser, NUMBER_LITERAL, new std::any(std::stoi(s)), &valid);
+        if(!valid)
+        {
+            FailError(ts, te);
+        }
+    }
+
+    action hex_const_tok {
+        std::string s(ts, te - ts);
+        std::cout << "Big test" << s << std::endl;
+        Parse(lparser, NUMBER_LITERAL, new std::any(std::stoi(s, nullptr, 16)), &valid);
+        if(!valid)
+        {
             FailError(ts, te);
         }
     }
@@ -122,6 +156,13 @@ void FailError(const char* ts, const char* te);
 
     action mod_gouraud_tok {
         Parse(lparser, MOD, new std::any(RegModifier::Gouraud), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
+    action mod_fogging_tok {
+        Parse(lparser, MOD, new std::any(RegModifier::Fogging), &valid);
         if(!valid) {
             FailError(ts, te);
         }
@@ -184,6 +225,8 @@ void FailError(const char* ts, const char* te);
     rgbaq = (/rgbaq/i|/rgba/i);
     xyz2 = /xyz2/i;
     prim = /prim/i;
+    fog = /fog/i;
+    fogcol = /fogcol/i;
 
     # Modifiers
         # Primitive Types
@@ -196,12 +239,20 @@ void FailError(const char* ts, const char* te);
         mod_sprite = (/sprite/i|/rect/i|/quad/i);
         # Primitive Modifiers
         mod_gouraud = /gouraud/i;
+        mod_fogging = (/fogging/i|/fog/i);
         mod_aa1 = /aa1/i;
 
     # Vectors
     vec4 = [0-9a-fA-F]+ ('.' [0-9]+)? ',' [0-9a-fA-F]+ ('.' [0-9]+)? ',' [0-9a-fA-F]+ ('.' [0-9]+)? ',' [0-9a-fA-F]+ ('.' [0-9]+)?;
     vec3 = [0-9a-fA-F]+ ('.' [0-9]+)? ',' [0-9a-fA-F]+ ('.' [0-9]+)? ',' [0-9a-fA-F]+ ('.' [0-9]+)?;
     vec2 = [0-9a-fA-F]+ ('.' [0-9a-fA-F]+)? ',' [0-9a-fA-F]+ ('.' [0-9a-fA-F]+)?;
+
+    # Integer Constants
+    int_const = digit+;
+    # Hexadecimal Constants
+    hex_prefix = '0' [xX];
+    hex_digit = [0-9a-fA-F];
+    hex_const = hex_prefix hex_digit+;
 
     # block begin
     block_begin = /{/i;
@@ -220,9 +271,13 @@ void FailError(const char* ts, const char* te);
         rgbaq => rgbaq_tok;
         xyz2 => xyz2_tok;
         prim => prim_tok;
+        fog => fog_tok;
+        fogcol => fogcol_tok;
         vec4 => vec4_tok;
         vec3 => vec3_tok;
         vec2 => vec2_tok;
+        int_const => int_const_tok;
+        hex_const => hex_const_tok;
         mod_point => mod_point_tok;
         mod_line => mod_line_tok;
         mod_linestrip => mod_linestrip_tok;
@@ -231,6 +286,7 @@ void FailError(const char* ts, const char* te);
         mod_trianglefan => mod_trianglefan_tok;
         mod_sprite => mod_sprite_tok;
         mod_gouraud => mod_gouraud_tok;
+        mod_fogging => mod_fogging_tok;
         mod_aa1 => mod_aa1_tok;
         block_begin => block_begin_tok;
         block_end => block_end_tok;

@@ -37,12 +37,16 @@ public:
 	static std::string emit_primitive(c_code_backend*, std::shared_ptr<GifRegister> reg);
 	static std::string emit_rgbaq(c_code_backend*, std::shared_ptr<GifRegister> reg);
 	static std::string emit_xyz2(c_code_backend*, std::shared_ptr<GifRegister> reg);
+	static std::string emit_fog(c_code_backend*, std::shared_ptr<GifRegister> reg);
+	static std::string emit_fogcol(c_code_backend*, std::shared_ptr<GifRegister> reg);
 
 	std::unordered_map<uint32_t, std::function<std::string(c_code_backend*, std::shared_ptr<GifRegister>)>> dispatch_table =
 		{
-			{0, c_code_backend::emit_primitive},
-			{1, c_code_backend::emit_rgbaq},
-			{5, c_code_backend::emit_xyz2}};
+			{0x00, c_code_backend::emit_primitive},
+			{0x01, c_code_backend::emit_rgbaq},
+			{0x05, c_code_backend::emit_xyz2},
+			{0x0A, c_code_backend::emit_fog},
+			{0x3D, c_code_backend::emit_fogcol}};
 
 private:
 	EmitMode emit_mode = EmitMode::USE_DEFS;

@@ -115,6 +115,16 @@ set_register ::= REG(A) MOD(B) MOD(C) MOD(D) MOD(E). {
 	delete E; 
 }
 
+set_register ::= REG(A) NUMBER_LITERAL(B). {
+	std::cout << "Parsed " << GetRegString(std::any_cast<GifRegisters>(*A)) << " <number>" << std::endl;
+	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A))) || !machine.TryPushReg(std::any_cast<int32_t>(*B))) {
+		*valid = false;
+	}
+
+	delete A;
+	delete B;
+}
+
 // Block madness
 
 create_block ::= IDENTIFIER(A) BLOCK_START. {

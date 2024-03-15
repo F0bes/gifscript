@@ -14,13 +14,17 @@ enum class GifRegisters
 {
 	PRIM,
 	RGBAQ,
-	XYZ2
+	XYZ2,
+	FOG,
+	FOGCOL
 };
 
 const char* const GifRegisterStrings[] = {
 	"PRIM",
 	"RGBAQ",
-	"XYZ2"};
+	"XYZ2",
+	"FOG",
+	"FOGCOL"};
 
 
 enum RegModifier : uint32_t
@@ -34,7 +38,8 @@ enum RegModifier : uint32_t
 	TriangleFan,
 	Sprite,
 	Gouraud,
-	AA1
+	Fogging,
+	AA1,
 };
 
 const std::string RegModifierStrings[] = {
@@ -43,7 +48,8 @@ const std::string RegModifierStrings[] = {
 	"Triangle",
 	"Sprite",
 	"Gouraud",
-	"AA1"};
+	"Fogging",
+	"AA1",};
 
 // Register Access Type
 // Used to determine if the gif block can use packed or reglist modes
@@ -128,11 +134,12 @@ static std::map<PrimType, const char*> PrimTypeStrings = {
 	{PrimType::TriangleFan, "GS_PRIM_TRIANGLE_FAN"},
 	{PrimType::Sprite, "GS_PRIM_SPRITE"}};
 
-class PRIM : public GifRegister
+struct PRIM : public GifRegister
 {
 	std::optional<PrimType> type;
 	bool gouraud = false;
 	bool aa1 = false;
+	bool fogging = false;
 
 public:
 	PRIM()
@@ -213,6 +220,9 @@ public:
 			case AA1:
 				aa1 = true;
 				break;
+			case Fogging:
+				fogging = true;
+				break;
 			default:
 				std::cerr << "Unknown modifier: " << mod << std::endl;
 				return false;
@@ -231,13 +241,18 @@ public:
 		return gouraud;
 	}
 
+	bool IsFogging()
+	{
+		return fogging;
+	}
+
 	bool IsAA1()
 	{
 		return aa1;
 	}
 };
 
-class RGBAQ : public GifRegister
+struct RGBAQ : public GifRegister
 {
 
 	std::optional<Vec4> value;
@@ -372,6 +387,138 @@ struct XYZ2 : public GifRegister
 	}
 };
 
+class FOG : public GifRegister
+{
+	std::optional<uint8_t> value;
+
+public:
+	FOG()
+		: GifRegister(0x0A, "FOG", RAT::ADP)
+	{
+	}
+
+	bool Ready() override
+	{
+		return value.has_value();
+	}
+
+	void Push(int32_t i ) override
+	{
+		value = i;
+	}
+
+	void Push(Vec2) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Push(Vec3 v3) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Push(Vec4) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Pushf(int32_t) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Pushf(Vec2) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Pushf(Vec3 v3) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Pushf(Vec4) override
+	{
+		logger::error("Not supported!");
+	}
+
+	bool ApplyModifier(RegModifier) override
+	{
+		return false;
+	}
+
+	uint8_t GetValue()
+	{
+		return value.value();
+	}
+};
+
+class FOGCOL : public GifRegister
+{
+	std::optional<Vec3> value;
+
+public:
+	FOGCOL()
+		: GifRegister(0x3D, "FOGCOL", RAT::ADP)
+	{
+	}
+
+	bool Ready() override
+	{
+		return value.has_value();
+	}
+
+	void Push(int32_t) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Push(Vec2) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Push(Vec3 v3) override
+	{
+		value = v3;
+	}
+
+	void Push(Vec4) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Pushf(int32_t) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Pushf(Vec2) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Pushf(Vec3 v3) override
+	{
+		value = v3.ftoi();
+	}
+
+	void Pushf(Vec4) override
+	{
+		logger::error("Not supported!");
+	}
+
+	bool ApplyModifier(RegModifier) override
+	{
+		return false;
+	}
+
+	Vec3 GetValue()
+	{
+		return value.value();
+	}
+};
+
 struct GIFBlock
 {
 	std::string name;
@@ -398,6 +545,10 @@ static std::shared_ptr<GifRegister> GenReg(GifRegisters reg)
 			return std::make_shared<RGBAQ>();
 		case GifRegisters::XYZ2:
 			return std::make_shared<XYZ2>();
+		case GifRegisters::FOG:
+			return std::make_shared<FOG>();
+		case GifRegisters::FOGCOL:
+			return std::make_shared<FOGCOL>();
 	}
 }
 
