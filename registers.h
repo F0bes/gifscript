@@ -18,6 +18,7 @@ enum class GifRegisters
 	FOG,
 	FOGCOL,
 	SCISSOR,
+	FINISH,
 };
 
 const char* const GifRegisterStrings[] = {
@@ -26,7 +27,8 @@ const char* const GifRegisterStrings[] = {
 	"XYZ2",
 	"FOG",
 	"FOGCOL",
-	"SCISSOR"};
+	"SCISSOR",
+	"FINISH"};
 
 
 enum RegModifier : uint32_t
@@ -587,6 +589,74 @@ public:
 	}
 };
 
+class FINISH : public GifRegister
+{
+	// The value is not used by the PS2
+	// But I will allow it to be set
+	int32_t value = 0;
+
+public:
+	FINISH()
+		: GifRegister(0x61, "FINISH", RAT::AD, true)
+	{
+	}
+
+	bool Ready() override
+	{
+		return true;
+	}
+
+	void Push(int32_t i) override
+	{
+		value = i;
+	}
+
+	void Push(Vec2) override
+	{
+		logger::warn("Non-Integer value pushed to FINISH register, ignored.");
+	}
+
+	void Push(Vec3) override
+	{
+		logger::warn("Non-Integer value pushed to FINISH register, ignored.");
+	}
+
+	void Push(Vec4 v4) override
+	{
+		logger::warn("Non-Integer value pushed to FINISH register, ignored.");
+	}
+
+	void Pushf(int32_t i) override
+	{
+		value = i;
+	}
+
+	void Pushf(Vec2) override
+	{
+		logger::warn("Non-Integer value pushed to FINISH register, ignored.");
+	}
+
+	void Pushf(Vec3) override
+	{
+		logger::warn("Non-Integer value pushed to FINISH register, ignored.");
+	}
+
+	void Pushf(Vec4) override
+	{
+		logger::warn("Non-Integer value pushed to FINISH register, ignored.");
+	}
+
+	bool ApplyModifier(RegModifier) override
+	{
+		return false;
+	}
+
+	int32_t GetValue()
+	{
+		return value;
+	}
+};
+
 struct GIFBlock
 {
 	std::string name;
@@ -619,6 +689,8 @@ static std::shared_ptr<GifRegister> GenReg(GifRegisters reg)
 			return std::make_shared<FOGCOL>();
 		case GifRegisters::SCISSOR:
 			return std::make_shared<SCISSOR>();
+		case GifRegisters::FINISH:
+			return std::make_shared<FINISH>();
 	}
 }
 

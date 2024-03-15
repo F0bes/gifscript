@@ -22,10 +22,12 @@ void FailError(const char* ts, const char* te);
 %%{
     machine gifscript;
 
+    # End cmd
     action semi_tok{
         Parse(lparser, 0, 0, &valid);
     }
 
+    # Registers
     action rgbaq_tok {
         Parse(lparser, REG, new std::any(GifRegisters::RGBAQ), &valid);
         if(!valid) {
@@ -68,50 +70,15 @@ void FailError(const char* ts, const char* te);
         }
     }
 
-    action vec4_tok {
-        std::string s(ts, te - ts);
-        Parse(lparser, VEC4, new std::any(Vec4(s)), &valid);
+    action finish_tok {
+        Parse(lparser, REG, new std::any(GifRegisters::FINISH), &valid);
         if(!valid) {
             FailError(ts, te);
         }
     }
 
-    action vec3_tok {
-        std::string s(ts, te - ts);
-        Parse(lparser, VEC3, new std::any(Vec3(s)), &valid);
-        if(!valid) {
-            FailError(ts, te);
-        }
-    }
-
-    action vec2_tok {
-        std::string s(ts, te - ts);
-        Parse(lparser, VEC2, new std::any(Vec2(s)), &valid);
-        if(!valid) {
-            FailError(ts, te);
-        }
-    }
-
-    action int_const_tok {
-        std::string s(ts, te - ts);
-        std::cout << "Big test" << s << std::endl;
-        Parse(lparser, NUMBER_LITERAL, new std::any(std::stoi(s)), &valid);
-        if(!valid)
-        {
-            FailError(ts, te);
-        }
-    }
-
-    action hex_const_tok {
-        std::string s(ts, te - ts);
-        std::cout << "Big test" << s << std::endl;
-        Parse(lparser, NUMBER_LITERAL, new std::any(std::stoi(s, nullptr, 16)), &valid);
-        if(!valid)
-        {
-            FailError(ts, te);
-        }
-    }
-
+    # Modifiers
+    # Primitive Types
     action mod_point_tok {
         Parse(lparser, MOD, new std::any(RegModifier::Point), &valid);
         if(!valid) {
@@ -161,6 +128,7 @@ void FailError(const char* ts, const char* te);
         }
     }
 
+    # Primitive Modifiers
     action mod_gouraud_tok {
         Parse(lparser, MOD, new std::any(RegModifier::Gouraud), &valid);
         if(!valid) {
@@ -182,6 +150,52 @@ void FailError(const char* ts, const char* te);
         }
     }
 
+    # Vectors
+    action vec4_tok {
+        std::string s(ts, te - ts);
+        Parse(lparser, VEC4, new std::any(Vec4(s)), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
+    action vec3_tok {
+        std::string s(ts, te - ts);
+        Parse(lparser, VEC3, new std::any(Vec3(s)), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
+    action vec2_tok {
+        std::string s(ts, te - ts);
+        Parse(lparser, VEC2, new std::any(Vec2(s)), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
+    # Integer Constants
+    action int_const_tok {
+        std::string s(ts, te - ts);
+        Parse(lparser, NUMBER_LITERAL, new std::any(std::stoi(s)), &valid);
+        if(!valid)
+        {
+            FailError(ts, te);
+        }
+    }
+
+    # Hexadecimal Constants
+    action hex_const_tok {
+        std::string s(ts, te - ts);
+        Parse(lparser, NUMBER_LITERAL, new std::any(std::stoi(s, nullptr, 16)), &valid);
+        if(!valid)
+        {
+            FailError(ts, te);
+        }
+    }
+
+    # Block controls
     action block_begin_tok {
         Parse(lparser, BLOCK_START, 0, &valid);
         if(!valid) {
@@ -201,6 +215,7 @@ void FailError(const char* ts, const char* te);
         Parse(lparser, 0, 0, &valid);
     }
 
+    # Macro keyword
     action macro_tok {
         Parse(lparser, MACRO, 0, &valid);
         if(!valid) {
@@ -208,6 +223,7 @@ void FailError(const char* ts, const char* te);
         }
     }
 
+    # Identifiers
     action identifier_tok {
         Parse(lparser, IDENTIFIER, new std::any(std::string(ts, te)), &valid);
         if(!valid)
@@ -235,6 +251,7 @@ void FailError(const char* ts, const char* te);
     fog = /fog/i;
     fogcol = /fogcol/i;
     scissor = /scissor/i;
+    finish = /finish/i;
 
     # Modifiers
         # Primitive Types
@@ -257,49 +274,68 @@ void FailError(const char* ts, const char* te);
 
     # Integer Constants
     int_const = digit+;
+
     # Hexadecimal Constants
     hex_prefix = '0' [xX];
     hex_digit = [0-9a-fA-F];
     hex_const = hex_prefix hex_digit+;
 
-    # block begin
+    # Block controls
     block_begin = /{/i;
-
-    # block end
     block_end = /}/i;
 
-    # macro keyword
+    # Macro keyword
     macro = /macro/i;
 
-    # Identifier
+    # Identifiers
     identifier = [a-zA-Z_][a-zA-Z0-9_]*;
 
     main := |*
+        # End cmd
         semi => semi_tok;
+        
+        # Registers
         rgbaq => rgbaq_tok;
         xyz2 => xyz2_tok;
         prim => prim_tok;
         fog => fog_tok;
         fogcol => fogcol_tok;
         scissor => scissor_tok;
+        finish => finish_tok;
+
+        # Modifiers
+            # Primitive Types
+            mod_point => mod_point_tok;
+            mod_line => mod_line_tok;
+            mod_linestrip => mod_linestrip_tok;
+            mod_triangle => mod_triangle_tok;
+            mod_trianglestrip => mod_trianglestrip_tok;
+            mod_trianglefan => mod_trianglefan_tok;
+            mod_sprite => mod_sprite_tok;
+            # Primitive Modifiers
+            mod_gouraud => mod_gouraud_tok;
+            mod_fogging => mod_fogging_tok;
+            mod_aa1 => mod_aa1_tok;
+
+        # Vectors
         vec4 => vec4_tok;
         vec3 => vec3_tok;
         vec2 => vec2_tok;
+
+        # Integer Constants
         int_const => int_const_tok;
+
+        # Hexadecimal Constants
         hex_const => hex_const_tok;
-        mod_point => mod_point_tok;
-        mod_line => mod_line_tok;
-        mod_linestrip => mod_linestrip_tok;
-        mod_triangle => mod_triangle_tok;
-        mod_trianglestrip => mod_trianglestrip_tok;
-        mod_trianglefan => mod_trianglefan_tok;
-        mod_sprite => mod_sprite_tok;
-        mod_gouraud => mod_gouraud_tok;
-        mod_fogging => mod_fogging_tok;
-        mod_aa1 => mod_aa1_tok;
+
+        # Block controls
         block_begin => block_begin_tok;
         block_end => block_end_tok;
+
+        # Macro keyword
         macro => macro_tok;
+
+        # Identifiers
         identifier => identifier_tok;
         space;
 
