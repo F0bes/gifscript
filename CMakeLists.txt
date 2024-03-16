@@ -5,14 +5,13 @@ project(gifscript CXX)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
 
 find_package(RAGEL REQUIRED)
-find_program(LEMON-PARSER "lemon" REQUIRED)
 
+
+if(WIN32)
+find_program(LEMON-PARSER "lemon" REQUIRED)
 if(NOT ${LEMON-PARSER} STREQUAL LEMON-PARSER-NOTFOUND)
-  if(WIN32)
-    message(debug "lemon parser (lemon.exe) not found. If using VCPKG install lemon-parser-generator and add `$VCPKG_ROOT\\packages\\lemon-parser-generator_x64-windows\\tools\\lemon` (or wherever lemon.exe is) to your $PATH.")
-  else()
-    message(debug "lemon parser not found. Please use your package managar install the lemon parser generator.")
-  endif()
+    message("lemon parser (lemon.exe) not found. If using VCPKG install lemon-parser-generator and add `$VCPKG_ROOT\\packages\\lemon-parser-generator_x64-windows\\tools\\lemon` (or wherever lemon.exe is) to your $PATH.")
+endif()
 endif()
 
 include(FetchContent)

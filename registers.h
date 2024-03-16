@@ -22,7 +22,7 @@ enum class GifRegisters
 	FINISH,
 };
 
-const char* const GifRegisterStrings[] = {
+constexpr const char* const GifRegisterStrings[] = {
 	"PRIM",
 	"RGBAQ",
 	"XYZ2",
@@ -740,7 +740,6 @@ struct GIFBlock
 	GIFBlock() = default;
 };
 
-
 // gross
 static std::shared_ptr<GifRegister> GenReg(GifRegisters reg)
 {
@@ -763,6 +762,8 @@ static std::shared_ptr<GifRegister> GenReg(GifRegisters reg)
 		case GifRegisters::SIGNAL:
 			return std::make_shared<SIGNAL>();
 	}
+
+	return nullptr;
 }
 
 constexpr const char* GetRegString(GifRegisters reg)
