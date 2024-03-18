@@ -84,6 +84,13 @@ void FailError(const char* ts, const char* te);
         }
     }
 
+    action label_tok {
+        Parse(lparser, REG, new std::any(GifRegisters::LABEL), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
     # Modifiers
     # Primitive Types
     action mod_point_tok {
@@ -260,6 +267,7 @@ void FailError(const char* ts, const char* te);
     scissor = /scissor/i;
     signal = /signal/i;
     finish = /finish/i;
+    label = /label/i;
 
     # Modifiers
         # Primitive Types
@@ -311,6 +319,7 @@ void FailError(const char* ts, const char* te);
         scissor => scissor_tok;
         signal => signal_tok;
         finish => finish_tok;
+        label => label_tok;
 
         # Modifiers
             # Primitive Types
@@ -540,7 +549,6 @@ int main(int argc, char **argv)
     Scan scan;
     long numbytes;
 
-    //Read the whole file into the buffer.
     fin = fopen(file_in.c_str(), "r");
     if(fin == nullptr)
     {
@@ -559,7 +567,6 @@ int main(int argc, char **argv)
 
     fread(buffer, 1, numbytes, fin);
 
-    //Parse the buffer in one fell swoop.
     scan.init();
     scan.execute(buffer, numbytes);
     delete backend;

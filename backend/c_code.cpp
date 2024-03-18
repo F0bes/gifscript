@@ -212,3 +212,13 @@ std::string c_code_backend::emit_finish(c_code_backend* inst, std::shared_ptr<Gi
 		return fmt::format("0x{:x},{},",val, "0x61");
 	}
 }
+
+std::string c_code_backend::emit_label(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
+{
+	LABEL label = dynamic_cast<LABEL&>(*reg);
+
+	auto val = label.GetValue();
+
+	return fmt::format("GS_SET_LABEL(0x{:02x},0x{:02x}),{},",
+		val.i_x,val.i_y, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_LABEL" : "0x62");
+}

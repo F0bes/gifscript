@@ -20,6 +20,7 @@ enum class GifRegisters
 	SCISSOR,
 	SIGNAL,
 	FINISH,
+	LABEL,
 };
 
 constexpr const char* const GifRegisterStrings[] = {
@@ -30,7 +31,8 @@ constexpr const char* const GifRegisterStrings[] = {
 	"FOGCOL",
 	"SCISSOR",
 	"SIGNAL",
-	"FINISH"};
+	"FINISH",
+	"LABEL"};
 
 
 enum RegModifier : uint32_t
@@ -726,6 +728,73 @@ public:
 	}
 };
 
+class LABEL : public GifRegister
+{
+	std::optional<Vec2> value;
+
+public:
+	LABEL()
+		: GifRegister(0x62, "LABEL", RAT::AD, true)
+	{
+	}
+
+	bool Ready() override
+	{
+		return value.has_value();
+	}
+
+	// Assume that all bits are not masked
+	void Push(int32_t i) override
+	{
+		value = Vec2(i, ~0u);
+	}
+
+	void Push(Vec2 v2) override
+	{
+		value = v2;
+	}
+
+	void Push(Vec3) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Push(Vec4 v4) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Pushf(int32_t i) override
+	{
+		value = Vec2(i, ~0u);
+	}
+
+	void Pushf(Vec2 v) override
+	{
+		value = v;
+	}
+
+	void Pushf(Vec3) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Pushf(Vec4) override
+	{
+		logger::error("Not supported!");
+	}
+
+	bool ApplyModifier(RegModifier) override
+	{
+		return false;
+	}
+
+	Vec2 GetValue()
+	{
+		return value.value();
+	}
+};
+
 struct GIFBlock
 {
 	std::string name;
@@ -757,10 +826,12 @@ static std::shared_ptr<GifRegister> GenReg(GifRegisters reg)
 			return std::make_shared<FOGCOL>();
 		case GifRegisters::SCISSOR:
 			return std::make_shared<SCISSOR>();
-		case GifRegisters::FINISH:
-			return std::make_shared<FINISH>();
 		case GifRegisters::SIGNAL:
 			return std::make_shared<SIGNAL>();
+		case GifRegisters::FINISH:
+			return std::make_shared<FINISH>();
+		case GifRegisters::LABEL:
+			return std::make_shared<LABEL>();
 	}
 
 	return nullptr;
