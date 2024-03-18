@@ -7,7 +7,12 @@
 #include "backend/c_code.h"
 
 #include "logger.h"
+#ifndef WIN32
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
 #include "parser.c"
+#pragma GCC diagnostic pop
+#endif
 #include "registers.h"
 #include "machine.h"
 

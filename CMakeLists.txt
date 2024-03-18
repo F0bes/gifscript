@@ -41,6 +41,8 @@ set(CORE_SOURCES
   parser.c
   machine.h
   machine.cpp
+  registers.h
+  registers.cpp
   ${RAGEL_gifscript_OUTPUTS}
   )
 
@@ -49,7 +51,7 @@ add_executable(gifscript ${BACKEND_SOURCES} ${CORE_SOURCES})
 if(WIN32)
   target_compile_options(gifscript PRIVATE /std:c++latest)
 else()
-  target_compile_options(gifscript PRIVATE -std=c++20)
+  target_compile_options(gifscript PRIVATE -std=c++20 -Wall -Werror -Wno-unused-const-variable)
 endif()
 
 target_include_directories(gifscript PRIVATE ${CMAKE_SOURCE_DIR})
@@ -62,7 +64,6 @@ target_link_libraries(gifscript PRIVATE fmt::fmt)
 # And (on vcpkg at least) the location of the template file is in the same directory
 
 if(WIN32)
-# do `where lemon`
   get_filename_component(LEMON_PARSER_DIR ${LEMON-PARSER} DIRECTORY)
   set(LEMON_PARSER_TEMPLATE "-T${LEMON_PARSER_DIR}/lempar.c")
 endif()
