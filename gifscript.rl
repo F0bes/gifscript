@@ -552,7 +552,7 @@ int main(int argc, char **argv)
     char buffer[8192];
     FILE* fin;
     Scan scan;
-    long numbytes;
+    unsigned long numbytes;
 
     fin = fopen(file_in.c_str(), "r");
     if(fin == nullptr)
