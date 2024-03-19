@@ -1,3 +1,5 @@
+#include "version.h"
+
 #include <string.h>
 #include <stdlib.h>
 #include <map>
@@ -447,6 +449,8 @@ void print_help(char* argv0)
             "General Arguments:\n\t"
             "  --help, -h\n\t"
             "    Prints this help message\n\t"
+            "  --version, -v\n\t"
+            "    Prints the version of gifscript\n\t"
             "  --oneshot-parse\n\t"
             "    Parses the entire file in one go. Probably faster, but you lose proper parsing error handling\n\t"
             "Optimization settings:\n\t"
@@ -495,6 +499,11 @@ int main(int argc, char **argv)
         {
             print_help(argv[0]);
             return 1;
+        }
+        else if (arg == "--version" || arg == "-v")
+        {
+            fmt::print("Gifscript version: {}\n", GIT_VERSION);
+            return 0;
         }
         else if (arg == "--keep-deadstore")
         {

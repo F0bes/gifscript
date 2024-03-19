@@ -6,7 +6,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
 
 find_package(RAGEL REQUIRED)
 
-
 if(WIN32)
 find_program(LEMON-PARSER "lemon" REQUIRED)
 if(NOT ${LEMON-PARSER} STREQUAL LEMON-PARSER-NOTFOUND)
@@ -36,6 +35,7 @@ set(BACKEND_SOURCES
 )
 
 set(CORE_SOURCES
+  version.h
   logger.h
   parser.h
   parser.c
@@ -51,7 +51,15 @@ add_executable(gifscript ${BACKEND_SOURCES} ${CORE_SOURCES})
 if(WIN32)
   target_compile_options(gifscript PRIVATE /std:c++latest)
 else()
-  target_compile_options(gifscript PRIVATE -std=c++20 -Wall -Werror -Wno-unused-const-variable)
+  execute_process(
+    COMMAND git describe --tags --abbrev=4 --always
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    OUTPUT_VARIABLE GIT_VERSION
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  string(CONCAT GIT_VERSION "\"" ${GIT_VERSION} "\"")
+  message("git version: ${GIT_VERSION}")
+  target_compile_options(gifscript PRIVATE -DGIT_VERSION=${GIT_VERSION} -std=c++20 -Wall -Werror -Wno-unused-const-variable)
 endif()
 
 target_include_directories(gifscript PRIVATE ${CMAKE_SOURCE_DIR})
