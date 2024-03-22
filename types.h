@@ -1,7 +1,24 @@
 #pragma once
 #include <cstdint>
 #include <stdexcept>
+#include <vector>
 #include <fmt/format.h>
+
+static uint32_t vec_parse_segment(const std::string& s)
+{
+	if (s.size() > 2 && s[0] == '0' && s[1] == 'x')
+	{
+		return std::stoul(s, nullptr, 16);
+	}
+	else if (s.find('.') != std::string::npos)
+	{
+		return std::bit_cast<uint32_t>(std::stof(s));
+	}
+	else
+	{
+		return std::stoul(s);
+	}
+}
 
 union Vec2
 {
@@ -28,8 +45,20 @@ union Vec2
 
 	Vec2(const std::string& s)
 	{
-		if (sscanf(s.c_str(), "%d,%d", &i_x, &i_y) != 2)
-			throw std::runtime_error("Invalid Vec2: " + s);
+		std::vector<std::string> parts;
+		size_t i, j;
+		for(i = 0, j = 0; i < s.size(); i++)
+		{
+			if(s[i] == ',')
+			{
+				parts.push_back(s.substr(j, i - j));
+				j = i + 1;
+			}
+		}
+		parts.push_back(s.substr(j, i - j));
+
+		i_x = vec_parse_segment(parts.at(0));
+		i_y = vec_parse_segment(parts.at(1));
 	}
 
 	Vec2 ftoi()
@@ -51,8 +80,21 @@ union Vec3
 
 	Vec3(const std::string& s)
 	{
-		if (sscanf(s.c_str(), "%d,%d,%d", &i_x, &i_y, &i_z) != 3)
-			throw std::runtime_error("Invalid Vec3: " + s);
+		std::vector<std::string> parts;
+		size_t i, j;
+		for(i = 0, j = 0; i < s.size(); i++)
+		{
+			if(s[i] == ',')
+			{
+				parts.push_back(s.substr(j, i - j));
+				j = i + 1;
+			}
+		}
+		parts.push_back(s.substr(j, i - j));
+
+		i_x = vec_parse_segment(parts.at(0));
+		i_y = vec_parse_segment(parts.at(1));
+		i_z = vec_parse_segment(parts.at(2));
 	}
 
 	explicit Vec3(float x, float y, float z)
@@ -109,8 +151,22 @@ union Vec4
 
 	Vec4(const std::string& s)
 	{
-		if (sscanf(s.c_str(), "%d,%d,%d,%d", &i_x, &i_y, &i_z, &i_w) != 4)
-			throw std::runtime_error("Invalid Vec4: " + s);
+		std::vector<std::string> parts;
+		size_t i, j;
+		for(i = 0, j = 0; i < s.size(); i++)
+		{
+			if(s[i] == ',')
+			{
+				parts.push_back(s.substr(j, i - j));
+				j = i + 1;
+			}
+		}
+		parts.push_back(s.substr(j, i - j));
+		
+		i_x = vec_parse_segment(parts.at(0));
+		i_y = vec_parse_segment(parts.at(1));
+		i_z = vec_parse_segment(parts.at(2));
+		i_w = vec_parse_segment(parts.at(3));
 	}
 
 	explicit Vec4(float x, float y, float z, float w)

@@ -119,7 +119,7 @@ set_register ::= REG(A) MOD(B) MOD(C) MOD(D) MOD(E). {
 }
 
 set_register ::= REG(A) NUMBER_LITERAL(B). {
-	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A))) || !machine.TryPushReg(std::any_cast<int32_t>(*B))) {
+	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A))) || !machine.TryPushReg(std::any_cast<uint32_t>(*B))) {
 		*valid = false;
 	}
 

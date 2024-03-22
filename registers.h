@@ -57,7 +57,8 @@ const std::string RegModifierStrings[] = {
 	"Sprite",
 	"Gouraud",
 	"Fogging",
-	"AA1",};
+	"AA1",
+};
 
 // Register Access Type
 // Used to determine if the gif block can use packed or reglist modes
@@ -75,6 +76,7 @@ class GifRegister
 	std::string_view name;
 	RAT rat;
 	bool sideEffects;
+
 public:
 	// Set sideEffects to true if the register should not be considered for dead store elimination
 	constexpr GifRegister(uint32_t id, const std::string_view name, RAT rat, bool sideEffects = false)
@@ -108,15 +110,10 @@ public:
 
 	virtual bool Ready() { return false; };
 
-	virtual void Push(int32_t) = 0;
+	virtual void Push(uint32_t) = 0;
 	virtual void Push(Vec2) = 0;
 	virtual void Push(Vec3) = 0;
 	virtual void Push(Vec4) = 0;
-
-	virtual void Pushf(int32_t) = 0;
-	virtual void Pushf(Vec2) = 0;
-	virtual void Pushf(Vec3) = 0;
-	virtual void Pushf(Vec4) = 0;
 
 	virtual bool ApplyModifier(RegModifier) = 0;
 };
@@ -159,7 +156,7 @@ public:
 		return type.has_value();
 	}
 
-	void Push(int32_t) override
+	void Push(uint32_t) override
 	{
 		logger::error("Not supported!");
 	}
@@ -177,22 +174,6 @@ public:
 	void Push(Vec4) override
 	{
 		logger::error("Not supported!");
-	}
-
-	void Pushf(int32_t) override
-	{
-	}
-
-	void Pushf(Vec2) override
-	{
-	}
-
-	void Pushf(Vec3) override
-	{
-	}
-
-	void Pushf(Vec4) override
-	{
 	}
 
 	bool ApplyModifier(RegModifier mod) override
@@ -275,9 +256,9 @@ public:
 		return value.has_value();
 	}
 
-	void Push(int32_t) override
+	void Push(uint32_t) override
 	{
-		std::cout << "RGBAQ::Push(int32_t) Not supported!" << std::endl;
+		std::cout << "RGBAQ::Push(uint32_t) Not supported!" << std::endl;
 	}
 
 	void Push(Vec2) override
@@ -294,28 +275,6 @@ public:
 	{
 		std::cout << "!!!! RGBAQ PUSHED " << v4.i_x << " " << v4.i_y << " " << v4.i_z << " " << v4.i_w << std::endl;
 		value = v4;
-	}
-
-	void Pushf(int32_t) override
-	{
-		std::cout << "RGBAQ::Pushf(int32_t) Not supported!" << std::endl;
-	}
-
-	void Pushf(Vec2) override
-	{
-		std::cout << "RGBAQ::Pushf(Vec2) Not supported!" << std::endl;
-	}
-
-	void Pushf(Vec3 v3) override
-	{
-		value = Vec4(v3.i_x, v3.i_y, v3.i_z, 0xff);
-		std::cout << "!!!! RGBAQ PUSHED " << v3.i_x << " " << v3.i_y << " " << v3.i_z << " " << 0xff << std::endl;
-	}
-
-	void Pushf(Vec4 v4) override
-	{
-		value = v4.ftoi();
-		std::cout << "!!!! RGBAQ PUSHED (4)" << v4.i_x << " " << v4.i_y << " " << v4.i_z << " " << v4.i_w << std::endl;
 	}
 
 	bool ApplyModifier(RegModifier) override
@@ -343,9 +302,9 @@ struct XYZ2 : public GifRegister
 		return value.has_value();
 	}
 
-	void Push(int32_t) override
+	void Push(uint32_t) override
 	{
-		std::cerr << "XYZ2::Push(int32_t) Not supported!" << std::endl;
+		std::cerr << "XYZ2::Push(uint32_t) Not supported!" << std::endl;
 	}
 
 	void Push(Vec2) override
@@ -361,26 +320,6 @@ struct XYZ2 : public GifRegister
 	void Push(Vec4) override
 	{
 		std::cerr << "XYZ2::Push(Vec4) Not supported!" << std::endl;
-	}
-
-	void Pushf(int32_t) override
-	{
-		std::cerr << "XYZ2::Pushf(int32_t) Not supported!" << std::endl;
-	}
-
-	void Pushf(Vec2) override
-	{
-		std::cerr << "XYZ2::Pushf(Vec2) Not supported!" << std::endl;
-	}
-
-	void Pushf(Vec3 v3) override
-	{
-		value = v3.ftoi();
-	}
-
-	void Pushf(Vec4) override
-	{
-		std::cerr << "XYZ2::Pushf(Vec4) Not supported!" << std::endl;
 	}
 
 	bool ApplyModifier(RegModifier) override
@@ -409,7 +348,7 @@ public:
 		return value.has_value();
 	}
 
-	void Push(int32_t i ) override
+	void Push(uint32_t i) override
 	{
 		value = i;
 	}
@@ -425,26 +364,6 @@ public:
 	}
 
 	void Push(Vec4) override
-	{
-		logger::error("Not supported!");
-	}
-
-	void Pushf(int32_t) override
-	{
-		logger::error("Not supported!");
-	}
-
-	void Pushf(Vec2) override
-	{
-		logger::error("Not supported!");
-	}
-
-	void Pushf(Vec3 v3) override
-	{
-		logger::error("Not supported!");
-	}
-
-	void Pushf(Vec4) override
 	{
 		logger::error("Not supported!");
 	}
@@ -475,7 +394,7 @@ public:
 		return value.has_value();
 	}
 
-	void Push(int32_t) override
+	void Push(uint32_t) override
 	{
 		logger::error("Not supported!");
 	}
@@ -491,26 +410,6 @@ public:
 	}
 
 	void Push(Vec4) override
-	{
-		logger::error("Not supported!");
-	}
-
-	void Pushf(int32_t) override
-	{
-		logger::error("Not supported!");
-	}
-
-	void Pushf(Vec2) override
-	{
-		logger::error("Not supported!");
-	}
-
-	void Pushf(Vec3 v3) override
-	{
-		value = v3.ftoi();
-	}
-
-	void Pushf(Vec4) override
 	{
 		logger::error("Not supported!");
 	}
@@ -541,7 +440,7 @@ public:
 		return value.has_value();
 	}
 
-	void Push(int32_t) override
+	void Push(uint32_t) override
 	{
 		logger::error("Not supported!");
 	}
@@ -559,26 +458,6 @@ public:
 	void Push(Vec4 v4) override
 	{
 		value = v4;
-	}
-
-	void Pushf(int32_t) override
-	{
-		logger::error("Not supported!");
-	}
-
-	void Pushf(Vec2) override
-	{
-		logger::error("Not supported!");
-	}
-
-	void Pushf(Vec3) override
-	{
-		logger::error("Not supported!");
-	}
-
-	void Pushf(Vec4) override
-	{
-		logger::error("Not supported!");
 	}
 
 	bool ApplyModifier(RegModifier) override
@@ -608,7 +487,7 @@ public:
 	}
 
 	// Assume that all bits are not masked
-	void Push(int32_t i) override
+	void Push(uint32_t i) override
 	{
 		value = Vec2(i, ~0u);
 	}
@@ -628,26 +507,6 @@ public:
 		logger::error("Not supported!");
 	}
 
-	void Pushf(int32_t i) override
-	{
-		value = Vec2(i, ~0u);
-	}
-
-	void Pushf(Vec2 v) override
-	{
-		value = v;
-	}
-
-	void Pushf(Vec3) override
-	{
-		logger::error("Not supported!");
-	}
-
-	void Pushf(Vec4) override
-	{
-		logger::error("Not supported!");
-	}
-
 	bool ApplyModifier(RegModifier) override
 	{
 		return false;
@@ -663,7 +522,7 @@ class FINISH : public GifRegister
 {
 	// The value is not used by the PS2
 	// But I will allow it to be set
-	int32_t value = 0;
+	uint32_t value = 0;
 
 public:
 	FINISH()
@@ -676,7 +535,7 @@ public:
 		return true;
 	}
 
-	void Push(int32_t i) override
+	void Push(uint32_t i) override
 	{
 		value = i;
 	}
@@ -696,32 +555,12 @@ public:
 		logger::warn("Non-Integer value pushed to FINISH register, ignored.");
 	}
 
-	void Pushf(int32_t i) override
-	{
-		value = i;
-	}
-
-	void Pushf(Vec2) override
-	{
-		logger::warn("Non-Integer value pushed to FINISH register, ignored.");
-	}
-
-	void Pushf(Vec3) override
-	{
-		logger::warn("Non-Integer value pushed to FINISH register, ignored.");
-	}
-
-	void Pushf(Vec4) override
-	{
-		logger::warn("Non-Integer value pushed to FINISH register, ignored.");
-	}
-
 	bool ApplyModifier(RegModifier) override
 	{
 		return false;
 	}
 
-	int32_t GetValue()
+	uint32_t GetValue()
 	{
 		return value;
 	}
@@ -743,7 +582,7 @@ public:
 	}
 
 	// Assume that all bits are not masked
-	void Push(int32_t i) override
+	void Push(uint32_t i) override
 	{
 		value = Vec2(i, ~0u);
 	}
@@ -759,26 +598,6 @@ public:
 	}
 
 	void Push(Vec4 v4) override
-	{
-		logger::error("Not supported!");
-	}
-
-	void Pushf(int32_t i) override
-	{
-		value = Vec2(i, ~0u);
-	}
-
-	void Pushf(Vec2 v) override
-	{
-		value = v;
-	}
-
-	void Pushf(Vec3) override
-	{
-		logger::error("Not supported!");
-	}
-
-	void Pushf(Vec4) override
 	{
 		logger::error("Not supported!");
 	}

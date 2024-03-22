@@ -196,20 +196,28 @@ void FailError(const char* ts, const char* te);
         }
     }
 
-    # Integer Constants
+    # Constants
     action int_const_tok {
         std::string s(ts, te - ts);
-        Parse(lparser, NUMBER_LITERAL, new std::any(std::stoi(s)), &valid);
+        Parse(lparser, NUMBER_LITERAL, new std::any(static_cast<uint32_t>(std::stoi(s))), &valid);
         if(!valid)
         {
             FailError(ts, te);
         }
     }
 
-    # Hexadecimal Constants
     action hex_const_tok {
         std::string s(ts, te - ts);
-        Parse(lparser, NUMBER_LITERAL, new std::any(std::stoi(s, nullptr, 16)), &valid);
+        Parse(lparser, NUMBER_LITERAL, new std::any(static_cast<uint32_t>(std::stoi(s, nullptr, 16))), &valid);
+        if(!valid)
+        {
+            FailError(ts, te);
+        }
+    }
+
+    action float_const_tok {
+        std::string s(ts, te - ts);
+        Parse(lparser, NUMBER_LITERAL, new std::any(std::bit_cast<uint32_t>(std::stof(s))), &valid);
         if(!valid)
         {
             FailError(ts, te);
@@ -253,11 +261,6 @@ void FailError(const char* ts, const char* te);
         }
     }
 
-    # Floating literals.
-    fract_const = digit* '.' digit+ | digit+ '.';
-    exponent = [eE] [+\-]? digit+;
-    float_suffix = [flFL];
-
     c_comment := 
         any* :>> '*/'
         @{ fgoto main; };
@@ -290,18 +293,15 @@ void FailError(const char* ts, const char* te);
         mod_fogging = (/fogging/i|/fog/i);
         mod_aa1 = /aa1/i;
 
-    # Vectors
-    vec4 = [0-9a-fA-F]+ ('.' [0-9]+)? ',' [0-9a-fA-F]+ ('.' [0-9]+)? ',' [0-9a-fA-F]+ ('.' [0-9]+)? ',' [0-9a-fA-F]+ ('.' [0-9]+)?;
-    vec3 = [0-9a-fA-F]+ ('.' [0-9]+)? ',' [0-9a-fA-F]+ ('.' [0-9]+)? ',' [0-9a-fA-F]+ ('.' [0-9]+)?;
-    vec2 = [0-9a-fA-F]+ ('.' [0-9a-fA-F]+)? ',' [0-9a-fA-F]+ ('.' [0-9a-fA-F]+)?;
-
-    # Integer Constants
+    # Constants
     int_const = digit+;
+    float_const = digit+ '.' digit+ (/f/i)?;
+    hex_const = ([0])? [xX] xdigit+;
 
-    # Hexadecimal Constants
-    hex_prefix = '0' [xX];
-    hex_digit = [0-9a-fA-F];
-    hex_const = hex_prefix hex_digit+;
+    # Vectors
+    vec4 = (int_const|float_const|hex_const) ',' (int_const|float_const|hex_const) ',' (int_const|float_const|hex_const) ',' (int_const|float_const|hex_const);
+    vec3 = (int_const|float_const|hex_const) ',' (int_const|float_const|hex_const) ',' (int_const|float_const|hex_const);
+    vec2 = (int_const|float_const|hex_const) ',' (int_const|float_const|hex_const);
 
     # Block controls
     block_begin = /{/i;
@@ -347,10 +347,9 @@ void FailError(const char* ts, const char* te);
         vec3 => vec3_tok;
         vec2 => vec2_tok;
 
-        # Integer Constants
+        # Constants
         int_const => int_const_tok;
-
-        # Hexadecimal Constants
+        float_const => float_const_tok;
         hex_const => hex_const_tok;
 
         # Block controls
