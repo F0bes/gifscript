@@ -2,15 +2,7 @@
 
 View the examples directory for, well, examples.
 
-Currently supports:
-- prim (aa1 and gouraud modifiers).
-- xyz2 (vec3 literals).
-- rgbaq (vec4 and vec3 literals).
-- macros with first-class support for macro-level xyz2 offsets.
-- C (/**/) and C++ (//) comments.
-
-Currently it dumps the generated code to stdout.
-Documentation coming soon.
+Documentation is located [here](https://github.com/F0bes/gifscript/wiki)
 
 ## What problem does this solve?
 At the moment, nothing really. It's just a little abstraction over writing gif
