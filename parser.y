@@ -24,107 +24,64 @@
 
 program ::= create_block. 
 program ::= create_macro.
-program ::= set_register.
+program ::= set_register params.
 program ::= end_block.
 program ::= insert_macro.
 
 // Register stuff
+params ::= param.
+params ::= params param.
+
+param ::= VEC4(A). {
+	Vec4 val = std::any_cast<Vec4>(*A);
+	if(!machine.TryPushReg(val)) {
+		*valid = false;
+	}
+
+	delete A;
+}
+
+param ::= VEC3(A). {
+	Vec3 val = std::any_cast<Vec3>(*A);
+	if(!machine.TryPushReg(val)) {
+		*valid = false;
+	}
+
+	delete A;
+}
+
+param ::= VEC2(A). {
+	Vec2 val = std::any_cast<Vec2>(*A);
+	if(!machine.TryPushReg(val)) {
+		*valid = false;
+	}
+
+	delete A;
+}
+
+param ::= NUMBER_LITERAL(A). {
+	std::cout << "Number literal" << std::endl;
+	if(!machine.TryPushReg(std::any_cast<uint32_t>(*A))) {
+		*valid = false;
+	}
+
+	delete A;
+}
+
+param ::= MOD(A). {
+	if(!machine.TryApplyModifier(std::any_cast<RegModifier>(*A))) {
+		*valid = false;
+	}
+
+	delete A;
+}
 
 set_register ::= REG(A). {
-	*valid = false;
-
-	delete A;
-}
-
-set_register ::= REG(A) VEC4(B). {
-	Vec4 val = std::any_cast<Vec4>(*B);
-	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A))) || !machine.TryPushReg(val)) {
+	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A)))) {
 		*valid = false;
 	}
 
 	delete A;
-	delete B;
-}
-
-set_register ::= REG(A) VEC3(B). {
-	Vec3 val = std::any_cast<Vec3>(*B);
-	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A))) || !machine.TryPushReg(val)) {
-		*valid = false;
-	}
-
-	delete A;
-	delete B;
-}
-
-set_register ::= REG(A) VEC2(B). {
-	Vec2 val = std::any_cast<Vec2>(*B);
-	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A))) || !machine.TryPushReg(val)) {
-		*valid = false;
-	}
-
-	delete A;
-	delete B;
-}
-
-set_register ::= REG(A) MOD(B). {
-	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A)))
-	|| !machine.TryApplyModifier(std::any_cast<RegModifier>(*B))) {
-		*valid = false;
-	}
-
-	delete A;
-	delete B;
-}
-
-set_register ::= REG(A) MOD(B) MOD(C). {
-	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A)))
-	|| !machine.TryApplyModifier(std::any_cast<RegModifier>(*B))
-	|| !machine.TryApplyModifier(std::any_cast<RegModifier>(*C))) {
-		*valid = false;
-	}
-
-	delete A;
-	delete B;
-	delete C;
-}
-
-set_register ::= REG(A) MOD(B) MOD(C) MOD(D). {
-	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A)))
-	|| !machine.TryApplyModifier(std::any_cast<RegModifier>(*B))
-	|| !machine.TryApplyModifier(std::any_cast<RegModifier>(*C))
-	|| !machine.TryApplyModifier(std::any_cast<RegModifier>(*D))) {
-		*valid = false;
-	}
-
-	delete A;
-	delete B;
-	delete C;
-	delete D;
-}
-
-set_register ::= REG(A) MOD(B) MOD(C) MOD(D) MOD(E). {
-	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A)))
-	|| !machine.TryApplyModifier(std::any_cast<RegModifier>(*B))
-	|| !machine.TryApplyModifier(std::any_cast<RegModifier>(*C))
-	|| !machine.TryApplyModifier(std::any_cast<RegModifier>(*D))
-	|| !machine.TryApplyModifier(std::any_cast<RegModifier>(*E))) {
-		*valid = false;
-	}
-
-	delete A;
-	delete B;
-	delete C;
-	delete D;
-	delete E; 
-}
-
-set_register ::= REG(A) NUMBER_LITERAL(B). {
-	if(!machine.TrySetRegister(GenReg(std::any_cast<GifRegisters>(*A))) || !machine.TryPushReg(std::any_cast<uint32_t>(*B))) {
-		*valid = false;
-	}
-
-	delete A;
-	delete B;
 }
 
 // Block madness
