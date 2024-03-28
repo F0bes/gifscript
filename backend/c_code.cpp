@@ -51,7 +51,7 @@ void c_code_backend::print_help() const
 
 c_code_backend::~c_code_backend()
 {
-	if(file != nullptr && file != stdout)
+	if (file != nullptr && file != stdout)
 	{
 		fclose(file);
 	}
@@ -60,9 +60,9 @@ c_code_backend::~c_code_backend()
 void c_code_backend::emit(GIFBlock* block)
 {
 	std::string prim_str;
-	if(block->prim)
+	if (block->prim)
 	{
-		if(emit_mode == EmitMode::USE_DEFS)
+		if (emit_mode == EmitMode::USE_DEFS)
 		{
 			prim_str = fmt::format("GS_SET_PRIM({},{},{},{},0,{},GS_ENABLE,0,0)", PrimTypeStrings[block->prim->GetType()],
 				block->prim->IsGouraud() ? "GS_ENABLE" : "GS_DISABLE",
@@ -83,8 +83,7 @@ void c_code_backend::emit(GIFBlock* block)
 	std::string buffer = fmt::format("u64 {1}_data_size = {0};\n"
 									 "u64 {1}_data[] __attribute__((aligned(16))) = {{\n\t"
 									 "GIF_SET_TAG({2},1,{3},{4},0,1),GIF_REG_AD,\n\t",
-		(block->registers.size() + 1) * 16, block->name, block->registers.size()
-		, block->prim ? 1 : 0, block->prim ? prim_str : "0");
+		(block->registers.size() + 1) * 16, block->name, block->registers.size(), block->prim ? 1 : 0, block->prim ? prim_str : "0");
 	fmt::print("Emitting block: {}\n", block->name);
 	for (auto& reg : block->registers)
 	{
@@ -152,6 +151,16 @@ std::string c_code_backend::emit_rgbaq(c_code_backend* inst, std::shared_ptr<Gif
 		val.x, val.y, val.z, val.w, 0, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_RGBAQ" : "0x01");
 }
 
+std::string c_code_backend::emit_uv(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
+{
+	UV uv = dynamic_cast<UV&>(*reg);
+
+	auto val = uv.GetValue();
+
+	return fmt::format("GS_SET_UV({}<<4,{}<<4),{},",
+		val.x, val.y, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_UV" : "0x03");
+}
+
 std::string c_code_backend::emit_xyz2(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
 {
 	XYZ2 xyz2 = dynamic_cast<XYZ2&>(*reg);
@@ -160,6 +169,39 @@ std::string c_code_backend::emit_xyz2(c_code_backend* inst, std::shared_ptr<GifR
 
 	return fmt::format("GS_SET_XYZ({}<<4,{}<<4,{}),{},",
 		val.x, val.y, val.z, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_XYZ2" : "0x05");
+}
+
+std::string c_code_backend::emit_tex0(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
+{
+	TEX0 tex0 = dynamic_cast<TEX0&>(*reg);
+
+	if (inst->emit_mode == EmitMode::USE_DEFS)
+	{
+		std::string PSM_STR;
+		switch (tex0.GetPSM())
+		{
+			case PSM::CT32:
+				PSM_STR = "GS_PSM_32";
+				break;
+			case PSM::CT24:
+				PSM_STR = "GS_PSM_24";
+				break;
+			case PSM::CT16:
+				PSM_STR = "GS_PSM_16";
+				break;
+		}
+
+		// Todo: Support gs_psm defines
+		return fmt::format("GS_SET_TEX0(0x{:x},0x{:x},{},{:x},{:x},{:d},{},0,0,0,0,0),GS_REG_TEX0,",
+			tex0.GetTBP(), tex0.GetTBW(), PSM_STR,
+			tex0.GetTW(), tex0.GetTH(), tex0.GetTCC(), static_cast<uint32_t>(tex0.GetTFX()));
+	}
+	else
+	{
+		return fmt::format("GS_SET_TEX0(0x{:02x},0x{:02x},{},{:02x},{:02x},{:d},{},0,0,0,0,0),0x06,",
+			tex0.GetTBP(), tex0.GetTBW(), static_cast<uint32_t>(tex0.GetPSM()),
+			tex0.GetTW(), tex0.GetTH(), tex0.GetTCC(), static_cast<uint32_t>(tex0.GetTFX()));
+	}
 }
 
 std::string c_code_backend::emit_fog(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
@@ -199,7 +241,7 @@ std::string c_code_backend::emit_signal(c_code_backend* inst, std::shared_ptr<Gi
 	auto val = signal.GetValue();
 
 	return fmt::format("GS_SET_SIGNAL(0x{:02x},0x{:02x}),{},",
-		val.x,val.y, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_SIGNAL" : "0x60");
+		val.x, val.y, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_SIGNAL" : "0x60");
 }
 
 std::string c_code_backend::emit_finish(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
@@ -207,13 +249,13 @@ std::string c_code_backend::emit_finish(c_code_backend* inst, std::shared_ptr<Gi
 	FINISH finish = dynamic_cast<FINISH&>(*reg);
 
 	auto val = finish.GetValue();
-	if(inst->emit_mode == EmitMode::USE_DEFS)
+	if (inst->emit_mode == EmitMode::USE_DEFS)
 	{
-		return fmt::format("GS_SET_FINISH({}),GS_REG_FINISH,",val);
+		return fmt::format("GS_SET_FINISH({}),GS_REG_FINISH,", val);
 	}
 	else
 	{
-		return fmt::format("0x{:x},{},",val, "0x61");
+		return fmt::format("0x{:x},{},", val, "0x61");
 	}
 }
 
@@ -224,5 +266,5 @@ std::string c_code_backend::emit_label(c_code_backend* inst, std::shared_ptr<Gif
 	auto val = label.GetValue();
 
 	return fmt::format("GS_SET_LABEL(0x{:02x},0x{:02x}),{},",
-		val.x,val.y, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_LABEL" : "0x62");
+		val.x, val.y, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_LABEL" : "0x62");
 }

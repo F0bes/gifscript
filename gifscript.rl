@@ -35,8 +35,22 @@ void FailError(const char* ts, const char* te);
     }
 
     # Registers
+    action prim_tok {
+        Parse(lparser, REG, new std::any(GifRegisters::PRIM), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
     action rgbaq_tok {
         Parse(lparser, REG, new std::any(GifRegisters::RGBAQ), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
+    action uv_tok {
+        Parse(lparser, REG, new std::any(GifRegisters::UV), &valid);
         if(!valid) {
             FailError(ts, te);
         }
@@ -49,8 +63,8 @@ void FailError(const char* ts, const char* te);
         }
     }
 
-    action prim_tok {
-        Parse(lparser, REG, new std::any(GifRegisters::PRIM), &valid);
+    action tex0_tok {
+        Parse(lparser, REG, new std::any(GifRegisters::TEX0), &valid);
         if(!valid) {
             FailError(ts, te);
         }
@@ -178,6 +192,56 @@ void FailError(const char* ts, const char* te);
         }
     }
 
+    # TEX0 Modifiers
+    action mod_ct32_tok {
+        Parse(lparser, MOD, new std::any(RegModifier::CT32), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
+    action mod_ct24_tok {
+        Parse(lparser, MOD, new std::any(RegModifier::CT24), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
+    action mod_ct16_tok {
+        Parse(lparser, MOD, new std::any(RegModifier::CT16), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
+    action mod_modulate_tok {
+        Parse(lparser, MOD, new std::any(RegModifier::Modulate), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
+    action mod_decal_tok {
+        Parse(lparser, MOD, new std::any(RegModifier::Decal), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
+    action mod_highlight_tok {
+        Parse(lparser, MOD, new std::any(RegModifier::Highlight), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
+    action mod_highlight2_tok {
+        Parse(lparser, MOD, new std::any(RegModifier::Highlight2), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
     # Vectors
     action vec4_tok {
         std::string s(ts, te - ts);
@@ -276,9 +340,11 @@ void FailError(const char* ts, const char* te);
     semi = ';';
 
     # Registers
-    rgbaq = (/rgbaq/i|/rgba/i);
-    xyz2 = /xyz2/i;
     prim = /prim/i;
+    rgbaq = (/rgbaq/i|/rgba/i);
+    uv = /uv/i;
+    xyz2 = /xyz2/i;
+    tex0 = /tex0/i;
     fog = /fog/i;
     fogcol = /fogcol/i;
     scissor = /scissor/i;
@@ -300,6 +366,14 @@ void FailError(const char* ts, const char* te);
         mod_fogging = (/fogging/i|/fog/i);
         mod_aa1 = /aa1/i;
         mod_texture = (/texture/i|/textured/i);
+        # TEX0 Modifiers
+        mod_ct32 = (/ct32/i|/psmct32/i);
+        mod_ct24 = (/ct24/i|/psmct24/i);
+        mod_ct16 = (/ct16/i|/psmct16/i);
+        mod_modulate = (/modulate/i);
+        mod_decal = (/decal/i);
+        mod_highlight = (/highlight/i);
+        mod_highlight2 = (/highlight2/i);
 
     # Constants
     int_const = digit+;
@@ -326,9 +400,11 @@ void FailError(const char* ts, const char* te);
         semi => semi_tok;
         
         # Registers
-        rgbaq => rgbaq_tok;
-        xyz2 => xyz2_tok;
         prim => prim_tok;
+        rgbaq => rgbaq_tok;
+        uv => uv_tok;
+        xyz2 => xyz2_tok;
+        tex0 => tex0_tok;
         fog => fog_tok;
         fogcol => fogcol_tok;
         scissor => scissor_tok;
@@ -350,6 +426,14 @@ void FailError(const char* ts, const char* te);
             mod_fogging => mod_fogging_tok;
             mod_aa1 => mod_aa1_tok;
             mod_texture => mod_texture_tok;
+            # TEX0 Modifiers
+            mod_ct32 => mod_ct32_tok;
+            mod_ct24 => mod_ct24_tok;
+            mod_ct16 => mod_ct16_tok;
+            mod_modulate => mod_modulate_tok;
+            mod_decal => mod_decal_tok;
+            mod_highlight => mod_highlight_tok;
+            mod_highlight2 => mod_highlight2_tok;
 
         # Vectors
         vec4 => vec4_tok;

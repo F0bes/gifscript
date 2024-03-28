@@ -8,8 +8,12 @@ std::shared_ptr<GifRegister> GenReg(GifRegisters reg)
 			return std::make_shared<PRIM>();
 		case GifRegisters::RGBAQ:
 			return std::make_shared<RGBAQ>();
+		case GifRegisters::UV:
+			return std::make_shared<UV>();
 		case GifRegisters::XYZ2:
 			return std::make_shared<XYZ2>();
+		case GifRegisters::TEX0:
+			return std::make_shared<TEX0>();
 		case GifRegisters::FOG:
 			return std::make_shared<FOG>();
 		case GifRegisters::FOGCOL:

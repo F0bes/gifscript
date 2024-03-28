@@ -14,7 +14,9 @@ enum class GifRegisters
 {
 	PRIM,
 	RGBAQ,
+	UV,
 	XYZ2,
+	TEX0,
 	FOG,
 	FOGCOL,
 	SCISSOR,
@@ -26,7 +28,9 @@ enum class GifRegisters
 constexpr const char* const GifRegisterStrings[] = {
 	"PRIM",
 	"RGBAQ",
+	"UV",
 	"XYZ2",
+	"TEX0",
 	"FOG",
 	"FOGCOL",
 	"SCISSOR",
@@ -49,6 +53,15 @@ enum RegModifier : uint32_t
 	Fogging,
 	AA1,
 	Texture,
+
+	// TEX0
+	CT32,
+	CT24,
+	CT16,
+	Modulate,
+	Decal,
+	Highlight,
+	Highlight2
 };
 
 const std::string RegModifierStrings[] = {
@@ -60,7 +73,13 @@ const std::string RegModifierStrings[] = {
 	"Fogging",
 	"AA1",
 	"Texture",
-};
+	"CT32",
+	"CT24",
+	"CT16"
+	"Modulate",
+	"Decal",
+	"Highlight",
+	"Highlight2"};
 
 // Register Access Type
 // Used to determine if the gif block can use packed or reglist modes
@@ -100,6 +119,7 @@ public:
 	{
 		return rat == RAT::AD;
 	}
+
 	constexpr bool HasSideEffects()
 	{
 		return sideEffects;
@@ -253,7 +273,6 @@ public:
 
 struct RGBAQ : public GifRegister
 {
-
 	std::optional<Vec4> value;
 
 public:
@@ -294,6 +313,52 @@ public:
 	}
 
 	Vec4 GetValue()
+	{
+		return value.value();
+	}
+};
+
+struct UV : public GifRegister
+{
+	std::optional<Vec2> value;
+
+public:
+	UV()
+		: GifRegister(0x03, "UV", RAT::ADP)
+	{
+	}
+
+	bool Ready() override
+	{
+		return value.has_value();
+	}
+
+	void Push(uint32_t) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Push(Vec2 v2) override
+	{
+		value = v2;
+	}
+
+	void Push(Vec3 v3) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Push(Vec4 v4) override
+	{
+		logger::error("Not supported!");
+	}
+
+	bool ApplyModifier(RegModifier) override
+	{
+		return false;
+	}
+
+	Vec2 GetValue()
 	{
 		return value.value();
 	}
@@ -341,6 +406,147 @@ struct XYZ2 : public GifRegister
 	Vec3 GetValue()
 	{
 		return value.value();
+	}
+};
+
+enum class PSM
+{
+	CT32,
+	CT24,
+	CT16
+};
+
+enum class TFX
+{
+	Modulate,
+	Decal,
+	Highlight,
+	Highlight2
+};
+
+struct TEX0 : public GifRegister
+{
+	std::optional<uint32_t> tbp;
+	std::optional<uint32_t> tbw;
+	std::optional<PSM> psm;
+	std::optional<uint32_t> tw;
+	std::optional<uint32_t> th;
+	TFX tfx = TFX::Decal;
+	bool tcc = 0;
+
+	TEX0()
+		: GifRegister(0x06, "TEX0", RAT::ADP)
+	{
+	}
+
+	bool Ready() override
+	{
+		return tbp.has_value() && tbw.has_value() && psm.has_value() && tw.has_value() && th.has_value();
+	}
+
+	void Push(uint32_t i) override
+	{
+		if (!tbp.has_value())
+			tbp = i;
+		else if (!tbw.has_value())
+			tbw = i;
+		else if (!tw.has_value())
+			tw = i;
+		else if (!th.has_value())
+			th = i;
+		else
+			logger::error("Unsure what you're trying to push to TEX0 (%d)", i);
+	}
+
+	void Push(Vec2 v2) override
+	{
+		if (!tw.has_value() && !th.has_value())
+		{
+			tw = v2.x;
+			th = v2.y;
+		}
+		else
+		{
+			logger::error("Unsure what you're trying to push to TEX0 (%d, %d)", v2.x, v2.y);
+		}
+	}
+
+	void Push(Vec3 v3) override
+	{
+		logger::error("Not supported!");
+	}
+
+	void Push(Vec4) override
+	{
+		logger::error("Not supported!");
+	}
+
+	bool ApplyModifier(RegModifier mod) override
+	{
+		switch (mod)
+		{
+			case CT32:
+				psm = PSM::CT32;
+				break;
+			case CT24:
+				psm = PSM::CT24;
+				break;
+			case CT16:
+				psm = PSM::CT16;
+				break;
+			case Modulate:
+				tfx = TFX::Modulate;
+				break;
+			case Decal:
+				tfx = TFX::Decal;
+				break;
+			case Highlight:
+				tfx = TFX::Highlight;
+				break;
+			case Highlight2:
+				tfx = TFX::Highlight2;
+				break;
+			default:
+				logger::error("Unknown modifier: %d", mod);
+				return false;
+		}
+
+		return true;
+	}
+
+	uint32_t GetTBP()
+	{
+		return tbp.value();
+	}
+
+	uint32_t GetTBW()
+	{
+		return tbw.value();
+	}
+
+	PSM GetPSM()
+	{
+		return psm.value();
+	}
+
+	uint32_t GetTW()
+	{
+		return tw.value();
+	}
+
+	uint32_t GetTH()
+	{
+		return th.value();
+	}
+
+	bool GetTCC()
+	{
+		return tcc;
+	}
+
+	TFX GetTFX()
+	{
+		return tfx;
 	}
 };
 

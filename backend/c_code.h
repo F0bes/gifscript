@@ -36,7 +36,9 @@ public:
 	// Primitive dispatching
 	static std::string emit_primitive(c_code_backend*, std::shared_ptr<GifRegister> reg);
 	static std::string emit_rgbaq(c_code_backend*, std::shared_ptr<GifRegister> reg);
+	static std::string emit_uv(c_code_backend*, std::shared_ptr<GifRegister> reg);
 	static std::string emit_xyz2(c_code_backend*, std::shared_ptr<GifRegister> reg);
+	static std::string emit_tex0(c_code_backend*, std::shared_ptr<GifRegister> reg);
 	static std::string emit_fog(c_code_backend*, std::shared_ptr<GifRegister> reg);
 	static std::string emit_fogcol(c_code_backend*, std::shared_ptr<GifRegister> reg);
 	static std::string emit_scissor(c_code_backend*, std::shared_ptr<GifRegister> reg);
@@ -48,7 +50,9 @@ public:
 		{
 			{0x00, c_code_backend::emit_primitive},
 			{0x01, c_code_backend::emit_rgbaq},
+			{0x03, c_code_backend::emit_uv},
 			{0x05, c_code_backend::emit_xyz2},
+			{0x06, c_code_backend::emit_tex0},
 			{0x0A, c_code_backend::emit_fog},
 			{0x3D, c_code_backend::emit_fogcol},
 			{0x40, c_code_backend::emit_scissor},
