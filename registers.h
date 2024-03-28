@@ -202,7 +202,7 @@ public:
 	bool ApplyModifier(RegModifier mod) override
 	{
 		std::cout << "Applying modifier: " << mod << std::endl;
-		switch (mod)
+		switch(mod)
 		{
 			case Point:
 				type = PrimType::Point;
@@ -446,13 +446,13 @@ struct TEX0 : public GifRegister
 
 	void Push(uint32_t i) override
 	{
-		if (!tbp.has_value())
+		if(!tbp.has_value())
 			tbp = i;
-		else if (!tbw.has_value())
+		else if(!tbw.has_value())
 			tbw = i;
-		else if (!tw.has_value())
+		else if(!tw.has_value())
 			tw = i;
-		else if (!th.has_value())
+		else if(!th.has_value())
 			th = i;
 		else
 			logger::error("Unsure what you're trying to push to TEX0 (%d)", i);
@@ -460,7 +460,7 @@ struct TEX0 : public GifRegister
 
 	void Push(Vec2 v2) override
 	{
-		if (!tw.has_value() && !th.has_value())
+		if(!tw.has_value() && !th.has_value())
 		{
 			tw = v2.x;
 			th = v2.y;
@@ -483,7 +483,7 @@ struct TEX0 : public GifRegister
 
 	bool ApplyModifier(RegModifier mod) override
 	{
-		switch (mod)
+		switch(mod)
 		{
 			case CT32:
 				psm = PSM::CT32;

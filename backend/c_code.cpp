@@ -11,21 +11,21 @@ c_code_backend::c_code_backend() noexcept
 
 bool c_code_backend::arg_parse(int argc, char** argv)
 {
-	for (int i = 0; i < argc; i++)
+	for(int i = 0; i < argc; i++)
 	{
 		const std::string_view arg = argv[i];
-		if (arg.starts_with("--b") && !arg.starts_with("--backend="))
+		if(arg.starts_with("--b") && !arg.starts_with("--backend="))
 		{
 			const std::string_view arg2 = arg.substr(3);
-			if (arg2.compare("defs") == 0)
+			if(arg2.compare("defs") == 0)
 			{
 				emit_mode = EmitMode::USE_DEFS;
 			}
-			else if (arg2.compare("magic") == 0)
+			else if(arg2.compare("magic") == 0)
 			{
 				emit_mode = EmitMode::USE_MAGIC;
 			}
-			else if (arg2.compare("help") == 0)
+			else if(arg2.compare("help") == 0)
 			{
 				print_help();
 				return false;
@@ -51,7 +51,7 @@ void c_code_backend::print_help() const
 
 c_code_backend::~c_code_backend()
 {
-	if (file != nullptr && file != stdout)
+	if(file != nullptr && file != stdout)
 	{
 		fclose(file);
 	}
@@ -60,9 +60,9 @@ c_code_backend::~c_code_backend()
 void c_code_backend::emit(GIFBlock* block)
 {
 	std::string prim_str;
-	if (block->prim)
+	if(block->prim)
 	{
-		if (emit_mode == EmitMode::USE_DEFS)
+		if(emit_mode == EmitMode::USE_DEFS)
 		{
 			prim_str = fmt::format("GS_SET_PRIM({},{},{},{},0,{},GS_ENABLE,0,0)", PrimTypeStrings[block->prim->GetType()],
 				block->prim->IsGouraud() ? "GS_ENABLE" : "GS_DISABLE",
@@ -85,7 +85,7 @@ void c_code_backend::emit(GIFBlock* block)
 									 "GIF_SET_TAG({2},1,{3},{4},0,1),GIF_REG_AD,\n\t",
 		(block->registers.size() + 1) * 16, block->name, block->registers.size(), block->prim ? 1 : 0, block->prim ? prim_str : "0");
 	fmt::print("Emitting block: {}\n", block->name);
-	for (auto& reg : block->registers)
+	for(auto& reg : block->registers)
 	{
 		buffer += dispatch_table[reg->GetID()](this, reg);
 		buffer += "\n\t";
@@ -95,16 +95,16 @@ void c_code_backend::emit(GIFBlock* block)
 	buffer.pop_back();
 	buffer += "\n};\n";
 
-	if (first_emit)
+	if(first_emit)
 	{
-		if (output.empty())
+		if(output.empty())
 		{
 			file = stdout;
 		}
 		else
 		{
 			file = fopen(output.c_str(), "w");
-			if (file == nullptr)
+			if(file == nullptr)
 			{
 				logger::error("Failed to open file: %s\n", output.cbegin());
 				return;
@@ -121,7 +121,7 @@ void c_code_backend::emit(GIFBlock* block)
 std::string c_code_backend::emit_primitive(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
 {
 	PRIM prim = dynamic_cast<PRIM&>(*reg);
-	if (inst->emit_mode == EmitMode::USE_DEFS)
+	if(inst->emit_mode == EmitMode::USE_DEFS)
 	{
 		return fmt::format("GS_SET_PRIM({},{},{},{},0,{},GS_ENABLE,0,0),GS_REG_PRIM,",
 			PrimTypeStrings[prim.GetType()],
@@ -175,10 +175,10 @@ std::string c_code_backend::emit_tex0(c_code_backend* inst, std::shared_ptr<GifR
 {
 	TEX0 tex0 = dynamic_cast<TEX0&>(*reg);
 
-	if (inst->emit_mode == EmitMode::USE_DEFS)
+	if(inst->emit_mode == EmitMode::USE_DEFS)
 	{
 		std::string PSM_STR;
-		switch (tex0.GetPSM())
+		switch(tex0.GetPSM())
 		{
 			case PSM::CT32:
 				PSM_STR = "GS_PSM_32";
@@ -249,7 +249,7 @@ std::string c_code_backend::emit_finish(c_code_backend* inst, std::shared_ptr<Gi
 	FINISH finish = dynamic_cast<FINISH&>(*reg);
 
 	auto val = finish.GetValue();
-	if (inst->emit_mode == EmitMode::USE_DEFS)
+	if(inst->emit_mode == EmitMode::USE_DEFS)
 	{
 		return fmt::format("GS_SET_FINISH({}),GS_REG_FINISH,", val);
 	}

@@ -2,7 +2,7 @@
 
 std::shared_ptr<GifRegister> GenReg(GifRegisters reg)
 {
-	switch (reg)
+	switch(reg)
 	{
 		case GifRegisters::PRIM:
 			return std::make_shared<PRIM>();

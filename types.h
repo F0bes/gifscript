@@ -8,9 +8,9 @@ static std::vector<std::string> vec_split(const std::string& s)
 {
 	std::vector<std::string> parts;
 	size_t i, j;
-	for (i = 0, j = 0; i < s.size(); i++)
+	for(i = 0, j = 0; i < s.size(); i++)
 	{
-		if (s[i] == ',')
+		if(s[i] == ',')
 		{
 			parts.push_back(s.substr(j, i - j));
 			j = i + 1;
@@ -22,11 +22,11 @@ static std::vector<std::string> vec_split(const std::string& s)
 
 static uint32_t vec_parse_segment(const std::string& s)
 {
-	if (s.size() > 2 && s[0] == '0' && s[1] == 'x')
+	if(s.size() > 2 && s[0] == '0' && s[1] == 'x')
 	{
 		return std::stoul(s, nullptr, 16);
 	}
-	else if (s.find('.') != std::string::npos)
+	else if(s.find('.') != std::string::npos)
 	{
 		return std::bit_cast<uint32_t>(std::stof(s));
 	}

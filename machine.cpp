@@ -9,12 +9,12 @@ Machine machine;
 
 bool Machine::TryStartBlock(const std::string name)
 {
-	if (currentBlock)
+	if(currentBlock)
 	{
 		logger::error("Still waiting for you to end the block %s\n", currentBlock->name.c_str());
 		return false;
 	}
-	else if (currentMacro)
+	else if(currentMacro)
 	{
 		logger::error("Still waiting for you to end the macro %s\n", currentMacro->name.c_str());
 		return false;
@@ -22,14 +22,14 @@ bool Machine::TryStartBlock(const std::string name)
 	else
 	{
 		auto block_name_dup = std::find_if(blocks.begin(), blocks.end(), [&name](GIFBlock& block) { return block.name == name; });
-		if (block_name_dup != blocks.end())
+		if(block_name_dup != blocks.end())
 		{
 			logger::error("Block with name %s already exists\n", name.c_str());
 			return false;
 		}
 
 		auto macro_name_dup = macros.find(name);
-		if (macro_name_dup != macros.end())
+		if(macro_name_dup != macros.end())
 		{
 			logger::error("Macro with name %s already exists\n", name.c_str());
 			return false;
@@ -43,12 +43,12 @@ bool Machine::TryStartBlock(const std::string name)
 
 bool Machine::TryStartMacro(const std::string name)
 {
-	if (currentMacro)
+	if(currentMacro)
 	{
 		logger::error("Still waiting for you to end the macro %s\n", currentMacro->name.c_str());
 		return false;
 	}
-	else if (currentBlock)
+	else if(currentBlock)
 	{
 		logger::error("Still waiting for you to end the block %s\n", currentBlock->name.c_str());
 		return false;
@@ -56,14 +56,14 @@ bool Machine::TryStartMacro(const std::string name)
 	else
 	{
 		auto block_name_dup = std::find_if(blocks.begin(), blocks.end(), [&name](GIFBlock& block) { return block.name == name; });
-		if (block_name_dup != blocks.end())
+		if(block_name_dup != blocks.end())
 		{
 			logger::error("Block with name %s already exists\n", name.c_str());
 			return false;
 		}
 
 		auto macro_name_dup = macros.find(name);
-		if (macro_name_dup != macros.end())
+		if(macro_name_dup != macros.end())
 		{
 			logger::error("Macro with name %s already exists\n", name.c_str());
 			return false;
@@ -78,7 +78,7 @@ bool Machine::TryStartMacro(const std::string name)
 
 bool Machine::TryEndBlockMacro()
 {
-	if (currentBlock)
+	if(currentBlock)
 	{
 		FirstPassOptimize();
 		backend->emit(currentBlock);
@@ -86,7 +86,7 @@ bool Machine::TryEndBlockMacro()
 		currentBlockMacro = nullptr;
 		return true;
 	}
-	else if (currentMacro)
+	else if(currentMacro)
 	{
 		currentMacro = nullptr;
 		currentBlockMacro = nullptr;
@@ -101,7 +101,7 @@ bool Machine::TryEndBlockMacro()
 
 bool Machine::TryInsertMacro(const std::string name)
 {
-	if (!currentBlockMacro)
+	if(!currentBlockMacro)
 	{
 		logger::error("No block or macro to insert macro into\n");
 		return false;
@@ -109,7 +109,7 @@ bool Machine::TryInsertMacro(const std::string name)
 	else
 	{
 		auto macro = macros.find(name);
-		if (macro != macros.end())
+		if(macro != macros.end())
 		{
 			currentBlockMacro->registers.insert(currentBlock->registers.end(), macro->second.registers.begin(), macro->second.registers.end());
 			return true;
@@ -124,7 +124,7 @@ bool Machine::TryInsertMacro(const std::string name)
 
 bool Machine::TryInsertMacro(const std::string name, Vec2 v)
 {
-	if (!currentBlockMacro)
+	if(!currentBlockMacro)
 	{
 		logger::error("No block or macro to insert macro into\n");
 		return false;
@@ -132,13 +132,13 @@ bool Machine::TryInsertMacro(const std::string name, Vec2 v)
 	else
 	{
 		auto macro = macros.find(name);
-		if (macro != macros.end())
+		if(macro != macros.end())
 		{
 			GIFBlock tmpMacro = GIFBlock(macro->second);
 
-			for (auto reg : tmpMacro.registers)
+			for(auto reg : tmpMacro.registers)
 			{
-				if (reg->GetID() == 0x05)
+				if(reg->GetID() == 0x05)
 				{
 					XYZ2 xyz2 = dynamic_cast<XYZ2&>(*reg);
 
@@ -162,11 +162,11 @@ bool Machine::TryInsertMacro(const std::string name, Vec2 v)
 }
 bool Machine::TrySetRegister(std::shared_ptr<GifRegister> reg)
 {
-	if (!currentBlockMacro)
+	if(!currentBlockMacro)
 	{
 		logger::error("Not in current block");
 	}
-	else if (currentRegister && !currentRegister->Ready())
+	else if(currentRegister && !currentRegister->Ready())
 	{
 		logger::error("Current register is not fulfilled");
 	}
@@ -180,7 +180,7 @@ bool Machine::TrySetRegister(std::shared_ptr<GifRegister> reg)
 
 bool Machine::TryPushReg(int32_t i)
 {
-	if (currentBlockMacro && currentRegister)
+	if(currentBlockMacro && currentRegister)
 	{
 		currentRegister->Push(i);
 		return true;
@@ -194,7 +194,7 @@ bool Machine::TryPushReg(int32_t i)
 
 bool Machine::TryPushReg(Vec2 v)
 {
-	if (currentBlockMacro && currentRegister)
+	if(currentBlockMacro && currentRegister)
 	{
 		currentRegister->Push(v);
 		return true;
@@ -208,7 +208,7 @@ bool Machine::TryPushReg(Vec2 v)
 
 bool Machine::TryPushReg(Vec3 v3)
 {
-	if (currentBlockMacro && currentRegister)
+	if(currentBlockMacro && currentRegister)
 	{
 		currentRegister->Push(v3);
 		return true;
@@ -222,7 +222,7 @@ bool Machine::TryPushReg(Vec3 v3)
 
 bool Machine::TryPushReg(Vec4 v4)
 {
-	if (currentBlockMacro && currentRegister)
+	if(currentBlockMacro && currentRegister)
 	{
 		currentRegister->Push(v4);
 		return true;
@@ -236,7 +236,7 @@ bool Machine::TryPushReg(Vec4 v4)
 
 bool Machine::TryApplyModifier(RegModifier mod)
 {
-	if (currentBlockMacro && currentRegister)
+	if(currentBlockMacro && currentRegister)
 	{
 		return currentRegister->ApplyModifier(mod);
 	}
@@ -252,18 +252,18 @@ bool Machine::TryApplyModifier(RegModifier mod)
 void Machine::FirstPassOptimize()
 {
 	// Dead store Elimination
-	if (OptimizeConfig[DEAD_STORE_ELIMINATION])
+	if(OptimizeConfig[DEAD_STORE_ELIMINATION])
 	{
 		std::shared_ptr<GifRegister> lastReg = nullptr;
-		for (auto reg : currentBlock->registers)
+		for(auto reg : currentBlock->registers)
 		{
-			if (reg->HasSideEffects())
+			if(reg->HasSideEffects())
 			{
 				lastReg = nullptr;
 			}
-			else if (lastReg)
+			else if(lastReg)
 			{
-				if (lastReg->GetID() == reg->GetID())
+				if(lastReg->GetID() == reg->GetID())
 				{
 					logger::info("Dead store elimination: %s", lastReg->GetName().cbegin());
 					currentBlock->registers.remove(lastReg);
