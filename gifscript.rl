@@ -174,7 +174,7 @@ void FailError(const char* ts, const char* te);
     # Vectors
     action vec4_tok {
         std::string s(ts, te - ts);
-        Parse(lparser, VEC4, new std::any(Vec4(s)), &valid);
+        Parse(lparser, VEC4, new std::any(Vec4::Parse(s)), &valid);
         if(!valid) {
             FailError(ts, te);
         }
@@ -182,7 +182,7 @@ void FailError(const char* ts, const char* te);
 
     action vec3_tok {
         std::string s(ts, te - ts);
-        Parse(lparser, VEC3, new std::any(Vec3(s)), &valid);
+        Parse(lparser, VEC3, new std::any(Vec3::Parse(s)), &valid);
         if(!valid) {
             FailError(ts, te);
         }
@@ -190,7 +190,7 @@ void FailError(const char* ts, const char* te);
 
     action vec2_tok {
         std::string s(ts, te - ts);
-        Parse(lparser, VEC2, new std::any(Vec2(s)), &valid);
+        Parse(lparser, VEC2, new std::any(Vec2::Parse(s)), &valid);
         if(!valid) {
             FailError(ts, te);
         }

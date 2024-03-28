@@ -268,12 +268,12 @@ public:
 
 	void Push(Vec3 v3) override
 	{
-		value = Vec4(v3.i_x, v3.i_y, v3.i_z, 0xff);
+		value = Vec4(v3.x, v3.y, v3.z, 0xff);
 	}
 
 	void Push(Vec4 v4) override
 	{
-		std::cout << "!!!! RGBAQ PUSHED " << v4.i_x << " " << v4.i_y << " " << v4.i_z << " " << v4.i_w << std::endl;
+		std::cout << "!!!! RGBAQ PUSHED " << v4.x << " " << v4.y << " " << v4.z << " " << v4.w << std::endl;
 		value = v4;
 	}
 
@@ -584,7 +584,7 @@ public:
 	// Assume that all bits are not masked
 	void Push(uint32_t i) override
 	{
-		value = Vec2(i, ~0u);
+		value = Vec2{i, ~0u};
 	}
 
 	void Push(Vec2 v2) override

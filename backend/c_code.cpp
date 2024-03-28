@@ -145,7 +145,7 @@ std::string c_code_backend::emit_rgbaq(c_code_backend* inst, std::shared_ptr<Gif
 	auto val = rgbaq.GetValue();
 
 	return fmt::format("GS_SET_RGBAQ(0x{:02x},0x{:02x},0x{:02x},0x{:02x},0x{:02x}),{},",
-		val.i_x, val.i_y, val.i_z, val.i_w, 0, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_RGBAQ" : "0x01");
+		val.x, val.y, val.z, val.w, 0, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_RGBAQ" : "0x01");
 }
 
 std::string c_code_backend::emit_xyz2(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
@@ -155,7 +155,7 @@ std::string c_code_backend::emit_xyz2(c_code_backend* inst, std::shared_ptr<GifR
 	auto val = xyz2.GetValue();
 
 	return fmt::format("GS_SET_XYZ({}<<4,{}<<4,{}),{},",
-		val.i_x, val.i_y, val.i_z, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_XYZ2" : "0x05");
+		val.x, val.y, val.z, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_XYZ2" : "0x05");
 }
 
 std::string c_code_backend::emit_fog(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
@@ -175,7 +175,7 @@ std::string c_code_backend::emit_fogcol(c_code_backend* inst, std::shared_ptr<Gi
 	auto val = fogcol.GetValue();
 
 	return fmt::format("GS_SET_FOGCOL(0x{:02x},0x{:02x},0x{:02x}),{},",
-		val.i_x, val.i_y, val.i_z, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_FOGCOL" : "0x3D");
+		val.x, val.y, val.z, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_FOGCOL" : "0x3D");
 }
 
 std::string c_code_backend::emit_scissor(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
@@ -185,7 +185,7 @@ std::string c_code_backend::emit_scissor(c_code_backend* inst, std::shared_ptr<G
 	auto val = scissor.GetValue();
 
 	return fmt::format("GS_SET_SCISSOR({},{},{},{}),{},",
-		val.i_x, val.i_y, val.i_z, val.i_w, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_SCISSOR" : "0x40");
+		val.x, val.y, val.z, val.w, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_SCISSOR" : "0x40");
 }
 
 std::string c_code_backend::emit_signal(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
@@ -195,7 +195,7 @@ std::string c_code_backend::emit_signal(c_code_backend* inst, std::shared_ptr<Gi
 	auto val = signal.GetValue();
 
 	return fmt::format("GS_SET_SIGNAL(0x{:02x},0x{:02x}),{},",
-		val.i_x,val.i_y, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_SIGNAL" : "0x60");
+		val.x,val.y, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_SIGNAL" : "0x60");
 }
 
 std::string c_code_backend::emit_finish(c_code_backend* inst, std::shared_ptr<GifRegister> reg)
@@ -220,5 +220,5 @@ std::string c_code_backend::emit_label(c_code_backend* inst, std::shared_ptr<Gif
 	auto val = label.GetValue();
 
 	return fmt::format("GS_SET_LABEL(0x{:02x},0x{:02x}),{},",
-		val.i_x,val.i_y, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_LABEL" : "0x62");
+		val.x,val.y, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_LABEL" : "0x62");
 }

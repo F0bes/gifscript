@@ -101,7 +101,6 @@ bool Machine::TryEndBlockMacro()
 
 bool Machine::TryInsertMacro(const std::string name)
 {
-
 	if (!currentBlockMacro)
 	{
 		logger::error("No block or macro to insert macro into\n");
@@ -145,8 +144,8 @@ bool Machine::TryInsertMacro(const std::string name, Vec2 v)
 
 					auto tmpXYZ2 = std::make_shared<XYZ2>(xyz2);
 
-					tmpXYZ2->value->i_x += v.i_x;
-					tmpXYZ2->value->i_y += v.i_y;
+					tmpXYZ2->value->x += v.x;
+					tmpXYZ2->value->y += v.y;
 					currentBlockMacro->registers.push_back(tmpXYZ2);
 				}
 				else
