@@ -171,6 +171,13 @@ void FailError(const char* ts, const char* te);
         }
     }
 
+    action mod_texture_tok {
+        Parse(lparser, MOD, new std::any(RegModifier::Texture), &valid);
+        if(!valid) {
+            FailError(ts, te);
+        }
+    }
+
     # Vectors
     action vec4_tok {
         std::string s(ts, te - ts);
@@ -292,6 +299,7 @@ void FailError(const char* ts, const char* te);
         mod_gouraud = /gouraud/i;
         mod_fogging = (/fogging/i|/fog/i);
         mod_aa1 = /aa1/i;
+        mod_texture = (/texture/i|/textured/i);
 
     # Constants
     int_const = digit+;
@@ -341,6 +349,7 @@ void FailError(const char* ts, const char* te);
             mod_gouraud => mod_gouraud_tok;
             mod_fogging => mod_fogging_tok;
             mod_aa1 => mod_aa1_tok;
+            mod_texture => mod_texture_tok;
 
         # Vectors
         vec4 => vec4_tok;

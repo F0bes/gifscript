@@ -48,6 +48,7 @@ enum RegModifier : uint32_t
 	Gouraud,
 	Fogging,
 	AA1,
+	Texture,
 };
 
 const std::string RegModifierStrings[] = {
@@ -58,6 +59,7 @@ const std::string RegModifierStrings[] = {
 	"Gouraud",
 	"Fogging",
 	"AA1",
+	"Texture",
 };
 
 // Register Access Type
@@ -144,6 +146,7 @@ struct PRIM : public GifRegister
 	bool gouraud = false;
 	bool aa1 = false;
 	bool fogging = false;
+	bool texture = false;
 
 public:
 	PRIM()
@@ -211,6 +214,9 @@ public:
 			case Fogging:
 				fogging = true;
 				break;
+			case Texture:
+				texture = true;
+				break;
 			default:
 				std::cerr << "Unknown modifier: " << mod << std::endl;
 				return false;
@@ -237,6 +243,11 @@ public:
 	bool IsAA1()
 	{
 		return aa1;
+	}
+
+	bool IsTextured()
+	{
+		return texture;
 	}
 };
 
