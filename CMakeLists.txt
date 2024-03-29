@@ -7,10 +7,10 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
 find_package(RAGEL REQUIRED)
 
 if(WIN32)
-find_program(LEMON-PARSER "lemon" REQUIRED)
-if(NOT ${LEMON-PARSER} STREQUAL LEMON-PARSER-NOTFOUND)
+  find_program(LEMON-PARSER "lemon" REQUIRED)
+  if(NOT ${LEMON-PARSER} STREQUAL LEMON-PARSER-NOTFOUND)
     message("lemon parser (lemon.exe) not found. If using VCPKG install lemon-parser-generator and add `$VCPKG_ROOT\\packages\\lemon-parser-generator_x64-windows\\tools\\lemon` (or wherever lemon.exe is) to your $PATH.")
-endif()
+  endif()
 endif()
 
 include(FetchContent)
@@ -59,17 +59,18 @@ else()
   )
   string(CONCAT GIT_VERSION "\"" ${GIT_VERSION} "\"")
   message("git version: ${GIT_VERSION}")
-  target_compile_options(gifscript PRIVATE -DGIT_VERSION=${GIT_VERSION} -std=c++20 -Wall -Werror -Wno-unused-const-variable)
+  target_compile_options(gifscript PRIVATE -DGIT_VERSION=${GIT_VERSION} -std=c++23 -Wall -Werror -Wno-unused-const-variable)
 endif()
 
 target_include_directories(gifscript PRIVATE ${CMAKE_SOURCE_DIR})
-# include fmt
+
 target_include_directories(gifscript PRIVATE ${fmt_SOURCE_DIR}/include)
 target_link_libraries(gifscript PRIVATE fmt::fmt)
 
 # CMake on windows causes issues with the lemon parser template file
 # We need to get the location of the current lemon parser executable
-# And (on vcpkg at least) the location of the template file is in the same directory
+# And (on vcpkg at least) the location of the template file is in the same
+# discord as the lemon executable
 
 if(WIN32)
   get_filename_component(LEMON_PARSER_DIR ${LEMON-PARSER} DIRECTORY)

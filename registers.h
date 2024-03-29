@@ -130,7 +130,7 @@ public:
 		return name;
 	}
 
-	virtual bool Ready() { return false; };
+	virtual bool Ready() const noexcept = 0;
 
 	virtual void Push(uint32_t) = 0;
 	virtual void Push(Vec2) = 0;
@@ -138,6 +138,9 @@ public:
 	virtual void Push(Vec4) = 0;
 
 	virtual bool ApplyModifier(RegModifier) = 0;
+
+	[[nodiscard]]
+	virtual std::unique_ptr<GifRegister> Clone() = 0;
 };
 
 enum class PrimType
@@ -174,7 +177,7 @@ public:
 	{
 	}
 
-	bool Ready() override
+	bool Ready() const noexcept override
 	{
 		return type.has_value();
 	}
@@ -245,29 +248,34 @@ public:
 		return true;
 	}
 
-	PrimType GetType()
+	PrimType GetType() const noexcept
 	{
 		return type.value();
 	}
 
-	bool IsGouraud()
+	bool IsGouraud() const noexcept
 	{
 		return gouraud;
 	}
 
-	bool IsFogging()
+	bool IsFogging() const noexcept
 	{
 		return fogging;
 	}
 
-	bool IsAA1()
+	bool IsAA1() const noexcept
 	{
 		return aa1;
 	}
 
-	bool IsTextured()
+	bool IsTextured() const noexcept
 	{
 		return texture;
+	}
+
+	std::unique_ptr<GifRegister> Clone() override
+	{
+		return std::make_unique<std::decay_t<decltype(*this)>>(*this);
 	}
 };
 
@@ -281,7 +289,7 @@ public:
 	{
 	}
 
-	bool Ready() override
+	bool Ready() const noexcept override
 	{
 		return value.has_value();
 	}
@@ -312,9 +320,14 @@ public:
 		return false;
 	}
 
-	Vec4 GetValue()
+	Vec4 GetValue() const noexcept
 	{
 		return value.value();
+	}
+
+	std::unique_ptr<GifRegister> Clone() override
+	{
+		return std::make_unique<std::decay_t<decltype(*this)>>(*this);
 	}
 };
 
@@ -328,7 +341,7 @@ public:
 	{
 	}
 
-	bool Ready() override
+	bool Ready() const noexcept override
 	{
 		return value.has_value();
 	}
@@ -358,9 +371,14 @@ public:
 		return false;
 	}
 
-	Vec2 GetValue()
+	Vec2 GetValue() const noexcept
 	{
 		return value.value();
+	}
+
+	std::unique_ptr<GifRegister> Clone() override
+	{
+		return std::make_unique<std::decay_t<decltype(*this)>>(*this);
 	}
 };
 
@@ -373,7 +391,7 @@ struct XYZ2 : public GifRegister
 	{
 	}
 
-	bool Ready() override
+	bool Ready() const noexcept override
 	{
 		return value.has_value();
 	}
@@ -403,9 +421,14 @@ struct XYZ2 : public GifRegister
 		return false;
 	}
 
-	Vec3 GetValue()
+	Vec3 GetValue() const noexcept
 	{
 		return value.value();
+	}
+
+	std::unique_ptr<GifRegister> Clone() override
+	{
+		return std::make_unique<std::decay_t<decltype(*this)>>(*this);
 	}
 };
 
@@ -439,7 +462,7 @@ struct TEX0 : public GifRegister
 	{
 	}
 
-	bool Ready() override
+	bool Ready() const noexcept override
 	{
 		return tbp.has_value() && tbw.has_value() && psm.has_value() && tw.has_value() && th.has_value();
 	}
@@ -514,39 +537,44 @@ struct TEX0 : public GifRegister
 		return true;
 	}
 
-	uint32_t GetTBP()
+	uint32_t GetTBP() const noexcept
 	{
 		return tbp.value();
 	}
 
-	uint32_t GetTBW()
+	uint32_t GetTBW() const noexcept
 	{
 		return tbw.value();
 	}
 
-	PSM GetPSM()
+	PSM GetPSM() const noexcept
 	{
 		return psm.value();
 	}
 
-	uint32_t GetTW()
+	uint32_t GetTW() const noexcept
 	{
 		return tw.value();
 	}
 
-	uint32_t GetTH()
+	uint32_t GetTH() const noexcept
 	{
 		return th.value();
 	}
 
-	bool GetTCC()
+	bool GetTCC() const noexcept
 	{
 		return tcc;
 	}
 
-	TFX GetTFX()
+	TFX GetTFX() const noexcept
 	{
 		return tfx;
+	}
+
+	std::unique_ptr<GifRegister> Clone() override
+	{
+		return std::make_unique<std::decay_t<decltype(*this)>>(*this);
 	}
 };
 
@@ -560,7 +588,7 @@ public:
 	{
 	}
 
-	bool Ready() override
+	bool Ready() const noexcept override
 	{
 		return value.has_value();
 	}
@@ -590,9 +618,14 @@ public:
 		return false;
 	}
 
-	uint8_t GetValue()
+	uint8_t GetValue() const noexcept
 	{
 		return value.value();
+	}
+
+	std::unique_ptr<GifRegister> Clone() override
+	{
+		return std::make_unique<std::decay_t<decltype(*this)>>(*this);
 	}
 };
 
@@ -606,7 +639,7 @@ public:
 	{
 	}
 
-	bool Ready() override
+	bool Ready() const noexcept override
 	{
 		return value.has_value();
 	}
@@ -636,9 +669,14 @@ public:
 		return false;
 	}
 
-	Vec3 GetValue()
+	Vec3 GetValue() const noexcept
 	{
 		return value.value();
+	}
+
+	std::unique_ptr<GifRegister> Clone() override
+	{
+		return std::make_unique<std::decay_t<decltype(*this)>>(*this);
 	}
 };
 
@@ -652,7 +690,7 @@ public:
 	{
 	}
 
-	bool Ready() override
+	bool Ready() const noexcept override
 	{
 		return value.has_value();
 	}
@@ -682,9 +720,14 @@ public:
 		return false;
 	}
 
-	Vec4 GetValue()
+	Vec4 GetValue() const noexcept
 	{
 		return value.value();
+	}
+
+	std::unique_ptr<GifRegister> Clone() override
+	{
+		return std::make_unique<std::decay_t<decltype(*this)>>(*this);
 	}
 };
 
@@ -698,7 +741,7 @@ public:
 	{
 	}
 
-	bool Ready() override
+	bool Ready() const noexcept override
 	{
 		return value.has_value();
 	}
@@ -729,9 +772,14 @@ public:
 		return false;
 	}
 
-	Vec2 GetValue()
+	Vec2 GetValue() const noexcept
 	{
 		return value.value();
+	}
+
+	std::unique_ptr<GifRegister> Clone() override
+	{
+		return std::make_unique<std::decay_t<decltype(*this)>>(*this);
 	}
 };
 
@@ -747,7 +795,7 @@ public:
 	{
 	}
 
-	bool Ready() override
+	bool Ready() const noexcept override
 	{
 		return true;
 	}
@@ -777,9 +825,14 @@ public:
 		return false;
 	}
 
-	uint32_t GetValue()
+	uint32_t GetValue() const noexcept
 	{
 		return value;
+	}
+
+	std::unique_ptr<GifRegister> Clone() override
+	{
+		return std::make_unique<std::decay_t<decltype(*this)>>(*this);
 	}
 };
 
@@ -793,7 +846,7 @@ public:
 	{
 	}
 
-	bool Ready() override
+	bool Ready() const noexcept override
 	{
 		return value.has_value();
 	}
@@ -824,17 +877,22 @@ public:
 		return false;
 	}
 
-	Vec2 GetValue()
+	Vec2 GetValue() const noexcept
 	{
 		return value.value();
+	}
+
+	std::unique_ptr<GifRegister> Clone() override
+	{
+		return std::make_unique<std::decay_t<decltype(*this)>>(*this);
 	}
 };
 
 struct GIFBlock
 {
 	std::string name;
-	std::shared_ptr<PRIM> prim = nullptr;
-	std::list<std::shared_ptr<GifRegister>> registers;
+	std::unique_ptr<GifRegister> prim;
+	std::list<std::unique_ptr<GifRegister>> registers;
 
 	GIFBlock(const std::string name)
 		: name(name)
@@ -842,10 +900,35 @@ struct GIFBlock
 	}
 
 	GIFBlock() = default;
+
+	GIFBlock(const GIFBlock& src)
+	{
+		this->name = src.name;
+		if(src.prim)
+		{
+			this->prim = src.prim->Clone();
+		}
+
+		for(auto& reg : src.registers)
+		{
+			this->registers.push_back(reg->Clone());
+		}
+	}
+	// Helper functions
+
+	bool HasRegister()
+	{
+		return !registers.empty();
+	}
+
+	GifRegister& CurrentRegister()
+	{
+		return *registers.back();
+	}
 };
 
-// gross
-std::shared_ptr<GifRegister> GenReg(GifRegisters reg);
+[[nodiscard]]
+std::unique_ptr<GifRegister> GenReg(GifRegisters reg);
 
 constexpr const char* GetRegString(GifRegisters reg)
 {

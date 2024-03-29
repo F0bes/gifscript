@@ -13,5 +13,5 @@ public:
 
 	virtual void print_help() const = 0;
 
-	virtual void emit(GIFBlock* block) = 0;
+	virtual void emit(GIFBlock& block) = 0;
 };

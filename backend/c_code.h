@@ -31,22 +31,22 @@ public:
 
 	void print_help() const override;
 
-	void emit(GIFBlock* block) override;
+	void emit(GIFBlock& block) override;
 
 	// Primitive dispatching
-	static std::string emit_primitive(c_code_backend*, std::shared_ptr<GifRegister> reg);
-	static std::string emit_rgbaq(c_code_backend*, std::shared_ptr<GifRegister> reg);
-	static std::string emit_uv(c_code_backend*, std::shared_ptr<GifRegister> reg);
-	static std::string emit_xyz2(c_code_backend*, std::shared_ptr<GifRegister> reg);
-	static std::string emit_tex0(c_code_backend*, std::shared_ptr<GifRegister> reg);
-	static std::string emit_fog(c_code_backend*, std::shared_ptr<GifRegister> reg);
-	static std::string emit_fogcol(c_code_backend*, std::shared_ptr<GifRegister> reg);
-	static std::string emit_scissor(c_code_backend*, std::shared_ptr<GifRegister> reg);
-	static std::string emit_signal(c_code_backend*, std::shared_ptr<GifRegister> reg);
-	static std::string emit_finish(c_code_backend*, std::shared_ptr<GifRegister> reg);
-	static std::string emit_label(c_code_backend*, std::shared_ptr<GifRegister> reg);
+	static std::string emit_primitive(c_code_backend*, const GifRegister&);
+	static std::string emit_rgbaq(c_code_backend*, const GifRegister&);
+	static std::string emit_uv(c_code_backend*, const GifRegister&);
+	static std::string emit_xyz2(c_code_backend*, const GifRegister&);
+	static std::string emit_tex0(c_code_backend*, const GifRegister&);
+	static std::string emit_fog(c_code_backend*, const GifRegister&);
+	static std::string emit_fogcol(c_code_backend*, const GifRegister&);
+	static std::string emit_scissor(c_code_backend*, const GifRegister&);
+	static std::string emit_signal(c_code_backend*, const GifRegister&);
+	static std::string emit_finish(c_code_backend*, const GifRegister&);
+	static std::string emit_label(c_code_backend*, const GifRegister&);
 
-	std::unordered_map<uint32_t, std::function<std::string(c_code_backend*, std::shared_ptr<GifRegister>)>> dispatch_table =
+	std::unordered_map<uint32_t, std::function<std::string(c_code_backend*, const GifRegister&)>> dispatch_table =
 		{
 			{0x00, c_code_backend::emit_primitive},
 			{0x01, c_code_backend::emit_rgbaq},
