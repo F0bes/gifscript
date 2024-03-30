@@ -19,7 +19,7 @@ jobs:
         custom_release_rules: "release:major"
 
     - name: Install Dependencies
-      run: sudo apt update && sudo apt install -y build-essential ragel lemon cmake
+      run: sudo apt update && sudo apt install -y gcc-12 g++-12 build-essential ragel lemon cmake
 
     - name: Checkout Repository
       uses: actions/checkout@v3
