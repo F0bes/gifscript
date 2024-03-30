@@ -1,4 +1,5 @@
 name: Master Release
+# trunk-ignore(checkov/CKV2_GHA_1)
 permissions: write-all
 
 on:
@@ -10,33 +11,33 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Increment Version
-      id: tag_version
-      uses: mathieudutour/github-tag-action@v6.2
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        release_branches: master
-        custom_release_rules: "release:major"
+      - name: Increment Version
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          release_branches: master
+          custom_release_rules: release:major
 
-    - name: Install Dependencies
-      run: sudo apt update && sudo apt install -y gcc-12 g++-12 build-essential ragel lemon cmake
+      - name: Install Dependencies
+        run: sudo apt update && sudo apt install -y gcc-12 g++-12 build-essential ragel lemon cmake
 
-    - name: Checkout Repository
-      uses: actions/checkout@v3
-    - run: git fetch --tags
-  
-    - name: Configure CMake
-      run: CC=gcc-12 CXX=g++-12 cmake -B ${{github.workspace}}/build
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - run: git fetch --tags
 
-    - name: Build
-      run: cmake --build ${{github.workspace}}/build
+      - name: Configure CMake
+        run: CC=gcc-12 CXX=g++-12 cmake -B ${{github.workspace}}/build
 
-    - name: Create Release
-      uses: softprops/action-gh-release@v1
-      if: steps.tag_version.outputs.new_tag
-      with:
-        prerelease: true
-        generate_release_notes: true
-        files: |
-          ${{github.workspace}}/build/gifscript
-        tag_name: ${{ steps.tag_version.outputs.new_tag }}
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: steps.tag_version.outputs.new_tag
+        with:
+          prerelease: true
+          generate_release_notes: true
+          files: |
+            ${{github.workspace}}/build/gifscript
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}

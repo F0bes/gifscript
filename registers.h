@@ -94,13 +94,13 @@ enum class RAT
 class GifRegister
 {
 	uint32_t id;
-	std::string_view name;
+	std::string name;
 	RAT rat;
 	bool sideEffects;
 
 public:
 	// Set sideEffects to true if the register should not be considered for dead store elimination
-	constexpr GifRegister(uint32_t id, const std::string_view name, RAT rat, bool sideEffects = false)
+	constexpr GifRegister(uint32_t id, const std::string name, RAT rat, bool sideEffects = false)
 		: id(id)
 		, name(name)
 		, rat(rat)
@@ -125,7 +125,7 @@ public:
 		return sideEffects;
 	}
 
-	constexpr std::string_view GetName()
+	const std::string GetName()
 	{
 		return name;
 	}
@@ -139,8 +139,7 @@ public:
 
 	virtual bool ApplyModifier(RegModifier) = 0;
 
-	[[nodiscard]]
-	virtual std::unique_ptr<GifRegister> Clone() = 0;
+	[[nodiscard]] virtual std::unique_ptr<GifRegister> Clone() = 0;
 };
 
 enum class PrimType
@@ -927,8 +926,7 @@ struct GIFBlock
 	}
 };
 
-[[nodiscard]]
-std::unique_ptr<GifRegister> GenReg(GifRegisters reg);
+[[nodiscard]] std::unique_ptr<GifRegister> GenReg(GifRegisters reg);
 
 constexpr const char* GetRegString(GifRegisters reg)
 {

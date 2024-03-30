@@ -1,4 +1,5 @@
-name: Branch Build
+name: branch-build
+permissions: read-all
 
 on:
   push:
@@ -9,15 +10,15 @@ jobs:
   branch-build:
     runs-on: ubuntu-latest
     steps:
-    - name: Install Dependencies
-      run: | 
-        sudo apt update && sudo apt install -y gcc-12 g++-12 make ragel lemon cmake
+      - name: Install Dependencies
+        run: |
+          sudo apt update && sudo apt install -y gcc-12 g++-12 make ragel lemon cmake
 
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-    - name: Configure CMake
-      run: CC=gcc-12 CXX=g++-12 cmake -B ${{github.workspace}}/build
+      - name: Configure CMake
+        run: CC=gcc-12 CXX=g++-12 cmake -B ${{github.workspace}}/build
 
-    - name: Build
-      run: cmake --build ${{github.workspace}}/build
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build

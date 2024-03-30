@@ -7,7 +7,7 @@
 
 Machine machine;
 
-bool Machine::TryStartBlock(const std::string name)
+bool Machine::TryStartBlock(const std::string& name)
 {
 	if(HasCurrentBlock()) [[unlikely]]
 	{
@@ -42,7 +42,7 @@ bool Machine::TryStartBlock(const std::string name)
 	}
 }
 
-bool Machine::TryStartMacro(const std::string name)
+bool Machine::TryStartMacro(const std::string& name)
 {
 	if(HasCurrentMacro()) [[unlikely]]
 	{
@@ -97,7 +97,7 @@ bool Machine::TryEndBlockMacro()
 	}
 }
 
-bool Machine::TryInsertMacro(const std::string name)
+bool Machine::TryInsertMacro(const std::string& name)
 {
 	if(!HasCurrentBlockOrMacro()) [[unlikely]]
 	{
@@ -124,7 +124,7 @@ bool Machine::TryInsertMacro(const std::string name)
 	}
 }
 
-bool Machine::TryInsertMacro(const std::string name, Vec2 v)
+bool Machine::TryInsertMacro(const std::string& name, Vec2 v)
 {
 	if(!HasCurrentBlockOrMacro()) [[unlikely]]
 	{
