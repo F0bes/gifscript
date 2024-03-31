@@ -279,6 +279,7 @@ void Machine::FirstPassOptimize()
 			{
 				logger::info("Packing Prim into GIFTAG");
 				CurrentBlock().prim = reg->Clone();
+				CurrentBlock().registers.remove(reg);
 				break;
 			}
 		}
