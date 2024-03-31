@@ -4,12 +4,7 @@
 #include <functional>
 #include "logger.h"
 
-
-c_code_backend::c_code_backend() noexcept
-{
-}
-
-bool c_code_backend::arg_parse(int argc, char** argv)
+auto c_code_backend::arg_parse(int argc, char** argv) -> bool
 {
 	for(int i = 0; i < argc; i++)
 	{
@@ -81,14 +76,15 @@ void c_code_backend::emit(GIFBlock& block)
 		}
 	}
 
+	const size_t bytes_per_register = 16;
 	std::string buffer = fmt::format("u64 {1}_data_size = {0};\n"
 									 "u64 {1}_data[] __attribute__((aligned(16))) = {{\n\t"
 									 "GIF_SET_TAG({2},1,{3},{4},0,1),GIF_REG_AD,\n\t",
-		(block.registers.size() + 1) * 16, block.name, block.registers.size(), block.prim ? 1 : 0, block.prim ? prim_str : "0");
+		(block.registers.size() + 1) * bytes_per_register, block.name, block.registers.size(), block.prim ? 1 : 0, block.prim ? prim_str : "0");
 	fmt::print("Emitting block: {}\n", block.name);
 	for(const auto& reg : block.registers)
 	{
-		buffer += dispatch_table[reg->GetID()](this, *reg);
+		buffer += dispatch_table[static_cast<uint32_t>(reg->GetID())](this, *reg);
 		buffer += "\n\t";
 	}
 
@@ -105,11 +101,12 @@ void c_code_backend::emit(GIFBlock& block)
 		else
 		{
 			file = fopen(output.c_str(), "w");
-			if(file == nullptr)
-			{
-				logger::error("Failed to open file: %s\n", output.cbegin());
-				return;
-			}
+		}
+
+		if(file == nullptr)
+		{
+			logger::error("Failed to open file: %s\n", output.cbegin());
+			return;
 		}
 		const std::string prologue = "#include <tamtypes.h>\n#include <gs_gp.h>\n#include <gif_tags.h>\n";
 		fwrite(prologue.c_str(), 1, prologue.size(), file);
@@ -118,10 +115,9 @@ void c_code_backend::emit(GIFBlock& block)
 	fwrite(buffer.c_str(), 1, buffer.size(), file);
 }
 
-
-std::string c_code_backend::emit_primitive(c_code_backend* inst, const GifRegister& reg)
+auto c_code_backend::emit_primitive(c_code_backend* inst, const GifRegister& reg) -> std::string
 {
-	const PRIM& prim = dynamic_cast<const PRIM&>(reg);
+	const auto& prim = dynamic_cast<const PRIM&>(reg);
 	if(inst->emit_mode == EmitMode::USE_DEFS)
 	{
 		return fmt::format("GS_SET_PRIM({},{},{},{},0,{},GS_ENABLE,0,0),GS_REG_PRIM,",
@@ -131,20 +127,18 @@ std::string c_code_backend::emit_primitive(c_code_backend* inst, const GifRegist
 			prim.IsFogging() ? "GS_ENABLE" : "GS_DISABLE",
 			prim.IsAA1() ? "GS_ENABLE" : "GS_DISABLE");
 	}
-	else
-	{
-		return fmt::format("GS_SET_PRIM({},{:d},{:d},{:d},0,{:d},1,0,0),0x00,",
-			static_cast<int>(prim.GetType()),
-			prim.IsGouraud(),
-			prim.IsTextured(),
-			prim.IsFogging(),
-			prim.IsAA1());
-	}
+
+	return fmt::format("GS_SET_PRIM({},{:d},{:d},{:d},0,{:d},1,0,0),0x00,",
+		static_cast<int>(prim.GetType()),
+		prim.IsGouraud(),
+		prim.IsTextured(),
+		prim.IsFogging(),
+		prim.IsAA1());
 }
 
-std::string c_code_backend::emit_rgbaq(c_code_backend* inst, const GifRegister& reg)
+auto c_code_backend::emit_rgbaq(c_code_backend* inst, const GifRegister& reg) -> std::string
 {
-	const RGBAQ& rgbaq = dynamic_cast<const RGBAQ&>(reg);
+	const auto& rgbaq = dynamic_cast<const RGBAQ&>(reg);
 
 	auto val = rgbaq.GetValue();
 
@@ -152,19 +146,19 @@ std::string c_code_backend::emit_rgbaq(c_code_backend* inst, const GifRegister& 
 		val.x, val.y, val.z, val.w, 0, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_RGBAQ" : "0x01");
 }
 
-std::string c_code_backend::emit_uv(c_code_backend* inst, const GifRegister& reg)
+auto c_code_backend::emit_uv(c_code_backend* inst, const GifRegister& reg) -> std::string
 {
-	const UV& uv = dynamic_cast<const UV&>(reg);
+	const auto& uv_reg = dynamic_cast<const UV&>(reg);
 
-	auto val = uv.GetValue();
+	auto val = uv_reg.GetValue();
 
 	return fmt::format("GS_SET_UV({}<<4,{}<<4),{},",
 		val.x, val.y, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_UV" : "0x03");
 }
 
-std::string c_code_backend::emit_xyz2(c_code_backend* inst, const GifRegister& reg)
+auto c_code_backend::emit_xyz2(c_code_backend* inst, const GifRegister& reg) -> std::string
 {
-	const XYZ2& xyz2 = dynamic_cast<const XYZ2&>(reg);
+	const auto& xyz2 = dynamic_cast<const XYZ2&>(reg);
 
 	auto val = xyz2.GetValue();
 
@@ -172,9 +166,9 @@ std::string c_code_backend::emit_xyz2(c_code_backend* inst, const GifRegister& r
 		val.x, val.y, val.z, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_XYZ2" : "0x05");
 }
 
-std::string c_code_backend::emit_tex0(c_code_backend* inst, const GifRegister& reg)
+auto c_code_backend::emit_tex0(c_code_backend* inst, const GifRegister& reg) -> std::string
 {
-	const TEX0& tex0 = dynamic_cast<const TEX0&>(reg);
+	const auto& tex0 = dynamic_cast<const TEX0&>(reg);
 
 	if(inst->emit_mode == EmitMode::USE_DEFS)
 	{
@@ -197,17 +191,15 @@ std::string c_code_backend::emit_tex0(c_code_backend* inst, const GifRegister& r
 			tex0.GetTBP(), tex0.GetTBW(), PSM_STR,
 			tex0.GetTW(), tex0.GetTH(), tex0.GetTCC(), static_cast<uint32_t>(tex0.GetTFX()));
 	}
-	else
-	{
-		return fmt::format("GS_SET_TEX0(0x{:02x},0x{:02x},{},{:02x},{:02x},{:d},{},0,0,0,0,0),0x06,",
-			tex0.GetTBP(), tex0.GetTBW(), static_cast<uint32_t>(tex0.GetPSM()),
-			tex0.GetTW(), tex0.GetTH(), tex0.GetTCC(), static_cast<uint32_t>(tex0.GetTFX()));
-	}
+
+	return fmt::format("GS_SET_TEX0(0x{:02x},0x{:02x},{},{:02x},{:02x},{:d},{},0,0,0,0,0),0x06,",
+		tex0.GetTBP(), tex0.GetTBW(), static_cast<uint32_t>(tex0.GetPSM()),
+		tex0.GetTW(), tex0.GetTH(), tex0.GetTCC(), static_cast<uint32_t>(tex0.GetTFX()));
 }
 
-std::string c_code_backend::emit_fog(c_code_backend* inst, const GifRegister& reg)
+auto c_code_backend::emit_fog(c_code_backend* inst, const GifRegister& reg) -> std::string
 {
-	const FOG& fog = dynamic_cast<const FOG&>(reg);
+	const auto& fog = dynamic_cast<const FOG&>(reg);
 
 	auto val = fog.GetValue();
 
@@ -215,9 +207,9 @@ std::string c_code_backend::emit_fog(c_code_backend* inst, const GifRegister& re
 		val, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_FOG" : "0x0A");
 }
 
-std::string c_code_backend::emit_fogcol(c_code_backend* inst, const GifRegister& reg)
+auto c_code_backend::emit_fogcol(c_code_backend* inst, const GifRegister& reg) -> std::string
 {
-	const FOGCOL& fogcol = dynamic_cast<const FOGCOL&>(reg);
+	const auto& fogcol = dynamic_cast<const FOGCOL&>(reg);
 
 	auto val = fogcol.GetValue();
 
@@ -225,9 +217,9 @@ std::string c_code_backend::emit_fogcol(c_code_backend* inst, const GifRegister&
 		val.x, val.y, val.z, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_FOGCOL" : "0x3D");
 }
 
-std::string c_code_backend::emit_scissor(c_code_backend* inst, const GifRegister& reg)
+auto c_code_backend::emit_scissor(c_code_backend* inst, const GifRegister& reg) -> std::string
 {
-	const SCISSOR& scissor = dynamic_cast<const SCISSOR&>(reg);
+	const auto& scissor = dynamic_cast<const SCISSOR&>(reg);
 
 	auto val = scissor.GetValue();
 
@@ -235,9 +227,9 @@ std::string c_code_backend::emit_scissor(c_code_backend* inst, const GifRegister
 		val.x, val.y, val.z, val.w, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_SCISSOR" : "0x40");
 }
 
-std::string c_code_backend::emit_signal(c_code_backend* inst, const GifRegister& reg)
+auto c_code_backend::emit_signal(c_code_backend* inst, const GifRegister& reg) -> std::string
 {
-	const SIGNAL& signal = dynamic_cast<const SIGNAL&>(reg);
+	const auto& signal = dynamic_cast<const SIGNAL&>(reg);
 
 	auto val = signal.GetValue();
 
@@ -245,24 +237,22 @@ std::string c_code_backend::emit_signal(c_code_backend* inst, const GifRegister&
 		val.x, val.y, inst->emit_mode == EmitMode::USE_DEFS ? "GS_REG_SIGNAL" : "0x60");
 }
 
-std::string c_code_backend::emit_finish(c_code_backend* inst, const GifRegister& reg)
+auto c_code_backend::emit_finish(c_code_backend* inst, const GifRegister& reg) -> std::string
 {
-	const FINISH& finish = dynamic_cast<const FINISH&>(reg);
+	const auto& finish = dynamic_cast<const FINISH&>(reg);
 
 	auto val = finish.GetValue();
 	if(inst->emit_mode == EmitMode::USE_DEFS)
 	{
 		return fmt::format("GS_SET_FINISH({}),GS_REG_FINISH,", val);
 	}
-	else
-	{
-		return fmt::format("0x{:x},{},", val, "0x61");
-	}
+
+	return fmt::format("0x{:x},{},", val, "0x61");
 }
 
-std::string c_code_backend::emit_label(c_code_backend* inst, const GifRegister& reg)
+auto c_code_backend::emit_label(c_code_backend* inst, const GifRegister& reg) -> std::string
 {
-	const LABEL& label = dynamic_cast<const LABEL&>(reg);
+	const auto& label = dynamic_cast<const LABEL&>(reg);
 
 	auto val = label.GetValue();
 

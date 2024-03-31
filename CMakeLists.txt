@@ -4,9 +4,15 @@ project(gifscript CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
 
+# Using CMAKE_CXX_STANDARD doesn't work for GCC...
+# This also doesn't work for Clang 14...
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(CPP_23_ARG "-std=c++2b")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set(CPP_23_ARG "-std=c++23")
+endif()
 
 find_package(RAGEL REQUIRED)
 
@@ -25,11 +31,23 @@ FetchContent_Declare(fmt
 )
 FetchContent_MakeAvailable(fmt)
 
+if(NOT WIN32)
+find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
+  if(CLANG_TIDY_EXE AND NOT DISABLE_CLANG_TIDY AND NOT WIN32)
+    set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*,modernize-*,performance-*,portability-*,bugprone-*,clang-analyzer-*)
+  endif()
+endif()
 
 RAGEL_TARGET(gifscript
   ${CMAKE_SOURCE_DIR}/gifscript.rl
   ${CMAKE_CURRENT_BINARY_DIR}/gifscript.cpp
   COMPILE_FLAGS -G2
+)
+
+set(GENERATED_SOURCES
+  parser.h
+  parser.c
+  ${RAGEL_gifscript_OUTPUTS}
 )
 
 set(BACKEND_SOURCES
@@ -41,16 +59,17 @@ set(BACKEND_SOURCES
 set(CORE_SOURCES
   version.h
   logger.h
-  parser.h
-  parser.c
   machine.h
   machine.cpp
   registers.h
   registers.cpp
-  ${RAGEL_gifscript_OUTPUTS}
   )
 
-add_executable(gifscript ${BACKEND_SOURCES} ${CORE_SOURCES})
+add_executable(gifscript ${BACKEND_SOURCES} ${CORE_SOURCES} ${GENERATED_SOURCES})
+
+set_source_files_properties(${GENERATED_SOURCES} PROPERTIES
+  SKIP_LINTING ON
+  )
 
 if(WIN32)
   target_compile_options(gifscript PRIVATE /std:c++latest)
@@ -63,7 +82,7 @@ else()
   )
   string(CONCAT GIT_VERSION "\"" ${GIT_VERSION} "\"")
   message("git version: ${GIT_VERSION}")
-  target_compile_options(gifscript PRIVATE -DGIT_VERSION=${GIT_VERSION} -std=c++23 -Wall -Werror -Wno-unused-const-variable)
+  target_compile_options(gifscript PRIVATE -DGIT_VERSION=${GIT_VERSION} -Wall -Werror -Wno-unused-const-variable ${CPP_23_ARG})
 endif()
 
 target_include_directories(gifscript PRIVATE ${CMAKE_SOURCE_DIR})

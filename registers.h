@@ -25,6 +25,21 @@ enum class GifRegisters
 	LABEL,
 };
 
+enum class GifRegisterID
+{
+	PRIM = 0x00,
+	RGBAQ = 0x01,
+	UV = 0x03,
+	XYZ2 = 0x05,
+	TEX0 = 0x06,
+	FOG = 0x0A,
+	FOGCOL = 0x3D,
+	SCISSOR = 0x40,
+	SIGNAL = 0x60,
+	FINISH = 0x61,
+	LABEL = 0x62
+};
+
 constexpr const char* const GifRegisterStrings[] = {
 	"PRIM",
 	"RGBAQ",
@@ -93,14 +108,14 @@ enum class RAT
 
 class GifRegister
 {
-	uint32_t id;
+	GifRegisterID id;
 	std::string name;
 	RAT rat;
 	bool sideEffects;
 
 public:
 	// Set sideEffects to true if the register should not be considered for dead store elimination
-	constexpr GifRegister(uint32_t id, const std::string name, RAT rat, bool sideEffects = false)
+	constexpr GifRegister(GifRegisterID id, const std::string name, RAT rat, bool sideEffects = false)
 		: id(id)
 		, name(name)
 		, rat(rat)
@@ -110,7 +125,7 @@ public:
 
 	virtual ~GifRegister() = default;
 
-	constexpr uint32_t GetID()
+	constexpr GifRegisterID GetID()
 	{
 		return id;
 	}
@@ -172,7 +187,7 @@ struct PRIM : public GifRegister
 
 public:
 	PRIM()
-		: GifRegister(0x00, "PRIM", RAT::ADP)
+		: GifRegister(GifRegisterID::PRIM, "PRIM", RAT::ADP)
 	{
 	}
 
@@ -284,7 +299,7 @@ struct RGBAQ : public GifRegister
 
 public:
 	RGBAQ()
-		: GifRegister(0x01, "RGBAQ", RAT::ADP)
+		: GifRegister(GifRegisterID::RGBAQ, "RGBAQ", RAT::ADP)
 	{
 	}
 
@@ -336,7 +351,7 @@ struct UV : public GifRegister
 
 public:
 	UV()
-		: GifRegister(0x03, "UV", RAT::ADP)
+		: GifRegister(GifRegisterID::UV, "UV", RAT::ADP)
 	{
 	}
 
@@ -386,7 +401,7 @@ struct XYZ2 : public GifRegister
 	std::optional<Vec3> value;
 
 	XYZ2()
-		: GifRegister(0x05, "XYZ2", RAT::ADP, true)
+		: GifRegister(GifRegisterID::XYZ2, "XYZ2", RAT::ADP, true)
 	{
 	}
 
@@ -457,7 +472,7 @@ struct TEX0 : public GifRegister
 	bool tcc = 0;
 
 	TEX0()
-		: GifRegister(0x06, "TEX0", RAT::ADP)
+		: GifRegister(GifRegisterID::TEX0, "TEX0", RAT::ADP)
 	{
 	}
 
@@ -583,7 +598,7 @@ class FOG : public GifRegister
 
 public:
 	FOG()
-		: GifRegister(0x0A, "FOG", RAT::ADP)
+		: GifRegister(GifRegisterID::FOG, "FOG", RAT::ADP)
 	{
 	}
 
@@ -634,7 +649,7 @@ class FOGCOL : public GifRegister
 
 public:
 	FOGCOL()
-		: GifRegister(0x3D, "FOGCOL", RAT::ADP)
+		: GifRegister(GifRegisterID::FOGCOL, "FOGCOL", RAT::ADP)
 	{
 	}
 
@@ -685,7 +700,7 @@ class SCISSOR : public GifRegister
 
 public:
 	SCISSOR()
-		: GifRegister(0x40, "SCISSOR", RAT::AD)
+		: GifRegister(GifRegisterID::SCISSOR, "SCISSOR", RAT::AD)
 	{
 	}
 
@@ -736,7 +751,7 @@ class SIGNAL : public GifRegister
 
 public:
 	SIGNAL()
-		: GifRegister(0x60, "SIGNAL", RAT::AD, true)
+		: GifRegister(GifRegisterID::SIGNAL, "SIGNAL", RAT::AD, true)
 	{
 	}
 
@@ -790,7 +805,7 @@ class FINISH : public GifRegister
 
 public:
 	FINISH()
-		: GifRegister(0x61, "FINISH", RAT::AD, true)
+		: GifRegister(GifRegisterID::FINISH, "FINISH", RAT::AD, true)
 	{
 	}
 
@@ -841,7 +856,7 @@ class LABEL : public GifRegister
 
 public:
 	LABEL()
-		: GifRegister(0x62, "LABEL", RAT::AD, true)
+		: GifRegister(GifRegisterID::LABEL, "LABEL", RAT::AD, true)
 	{
 	}
 

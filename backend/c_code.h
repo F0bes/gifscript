@@ -19,7 +19,7 @@ class c_code_backend : public Backend
 	};
 
 public:
-	c_code_backend() noexcept;
+	c_code_backend() = default;
 	~c_code_backend();
 
 	bool arg_parse(int argc, char** argv) override;

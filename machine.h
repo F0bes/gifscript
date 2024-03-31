@@ -64,17 +64,17 @@ public:
 	}
 
 	void SetBackend(Backend* backend) noexcept { this->backend = backend; };
-	bool TryStartBlock(const std::string& name);
-	bool TryStartMacro(const std::string& name);
+	bool TryStartBlock(const std::string&);
+	bool TryStartMacro(const std::string&);
 	bool TryEndBlockMacro();
-	bool TryInsertMacro(const std::string& name);
-	bool TryInsertMacro(const std::string& name, Vec2 v);
+	bool TryInsertMacro(const std::string&);
+	bool TryInsertMacro(const std::string&, Vec2);
 	bool TrySetRegister(std::unique_ptr<GifRegister> reg);
-	bool TryPushReg(int32_t i);
-	bool TryPushReg(Vec2 v);
-	bool TryPushReg(Vec3 v3);
-	bool TryPushReg(Vec4 v4);
-	bool TryApplyModifier(RegModifier mod);
+	bool TryPushReg(int32_t);
+	bool TryPushReg(Vec2);
+	bool TryPushReg(Vec3);
+	bool TryPushReg(Vec4);
+	bool TryApplyModifier(RegModifier);
 
 	void DisableOptimization(Optimization op)
 	{

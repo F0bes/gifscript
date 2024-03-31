@@ -1,6 +1,7 @@
 #include "registers.h"
+#include <utility>
 
-std::unique_ptr<GifRegister> GenReg(GifRegisters reg)
+auto GenReg(GifRegisters reg) -> std::unique_ptr<GifRegister>
 {
 	switch(reg)
 	{
@@ -26,6 +27,8 @@ std::unique_ptr<GifRegister> GenReg(GifRegisters reg)
 			return std::make_unique<FINISH>();
 		case GifRegisters::LABEL:
 			return std::make_unique<LABEL>();
+		default:
+			std::unreachable();
 	}
 
 	return nullptr;

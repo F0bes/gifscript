@@ -1,7 +1,7 @@
 #include "version.h"
 
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 #include <map>
 #include <fcntl.h>
 #include <fmt/format.h>
