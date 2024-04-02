@@ -2,12 +2,13 @@
 #include <any>
 #include <iostream>
 #include <cassert>
-#include "types.h"
-#include "registers.h"
+#include "types.hpp"
+#include "registers.hpp"
+#include "machine.hpp"
 #include "parser.h"
-#include "machine.h"
 
-#include "backend/backend.hpp"
+
+#include "backend.hpp"
 }
 
 %syntax_error {

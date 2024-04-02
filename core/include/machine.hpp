@@ -6,8 +6,8 @@
 #include <bitset>
 #include <utility>
 
-#include "registers.h"
-#include "backend/backend.hpp"
+#include "registers.hpp"
+#include "backend.hpp"
 
 class Machine
 {

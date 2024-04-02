@@ -1,9 +1,9 @@
-#include "machine.h"
+#include "machine.hpp"
 
 #include <algorithm>
-#include "registers.h"
-#include "types.h"
-#include "logger.h"
+#include "registers.hpp"
+#include "types.hpp"
+#include "logger.hpp"
 
 Machine machine;
 
@@ -133,7 +133,7 @@ auto Machine::TryInsertMacro(const std::string& name, Vec2 xyOffset) -> bool
 		GIFBlock tmpMacro = macro->second;
 		for(const auto& reg : tmpMacro.registers)
 		{
-			if(reg->GetID() == GifRegisterID::PRIM)
+			if(reg->GetID() == GifRegisterID::XYZ2)
 			{
 				// Copies the register
 				XYZ2 xyz2 = dynamic_cast<XYZ2&>(*reg);

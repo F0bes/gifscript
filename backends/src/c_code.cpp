@@ -1,8 +1,8 @@
-#include "c_code.h"
-#include "registers.h"
+#include "c_code.hpp"
+#include "registers.hpp"
 #include <fmt/core.h>
 #include <functional>
-#include "logger.h"
+#include "logger.hpp"
 
 auto c_code_backend::arg_parse(int argc, char** argv) -> bool
 {

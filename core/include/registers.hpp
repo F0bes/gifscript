@@ -1,7 +1,7 @@
 #pragma once
 
-#include "types.h"
-#include "logger.h"
+#include "types.hpp"
+#include "logger.hpp"
 #include <optional>
 #include <iostream>
 #include <algorithm>

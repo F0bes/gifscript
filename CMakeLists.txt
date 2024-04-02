@@ -23,6 +23,16 @@ if(WIN32)
   endif()
 endif()
 
+set(CORE_DIR ${CMAKE_SOURCE_DIR}/core)
+set(CORE_INCLUDE ${CORE_DIR}/include)
+set(CORE_SRC ${CORE_DIR}/src)
+
+set(BACKEND_DIR ${CMAKE_SOURCE_DIR}/backends)
+set(BACKEND_INCLUDE ${BACKEND_DIR}/include)
+set(BACKEND_SRC ${BACKEND_DIR}/src)
+
+set(FRONTEND_DIR ${CMAKE_SOURCE_DIR}/frontends)
+
 include(FetchContent)
 
 FetchContent_Declare(fmt
@@ -39,39 +49,45 @@ find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
 endif()
 
 RAGEL_TARGET(gifscript
-  ${CMAKE_SOURCE_DIR}/gifscript.rl
+  ${FRONTEND_DIR}/gifscript.rl
   ${CMAKE_CURRENT_BINARY_DIR}/gifscript.cpp
   COMPILE_FLAGS -G2
 )
 
 set(GENERATED_SOURCES
-  parser.h
-  parser.c
+  ${CMAKE_CURRENT_BINARY_DIR}/parser.h
+  ${CMAKE_CURRENT_BINARY_DIR}/parser.c
   ${RAGEL_gifscript_OUTPUTS}
 )
 
 set(BACKEND_SOURCES
-  backend/backend.hpp
-  backend/c_code.cpp
-  backend/c_code.h
+  ${BACKEND_INCLUDE}/backend.hpp
+  ${BACKEND_INCLUDE}/c_code.hpp
+  ${BACKEND_SRC}/c_code.cpp
 )
 
 set(CORE_SOURCES
-  version.h
-  logger.h
-  machine.h
-  machine.cpp
-  registers.h
-  registers.cpp
-  )
+  ${CORE_INCLUDE}/version.hpp
+  ${CORE_INCLUDE}/logger.hpp
+  ${CORE_INCLUDE}/machine.hpp
+  ${CORE_INCLUDE}/registers.hpp
+  ${CORE_SRC}/machine.cpp
+  ${CORE_SRC}/registers.cpp
+)
 
-add_executable(gifscript ${BACKEND_SOURCES} ${CORE_SOURCES} ${GENERATED_SOURCES})
+add_library(gifscript_core ${BACKEND_SOURCES} ${CORE_SOURCES} ${GENERATED_SOURCES})
+target_include_directories(gifscript_core PRIVATE ${CORE_INCLUDE} ${BACKEND_INCLUDE})
+
+add_executable(gifscript gifscript.cpp)
+target_include_directories(gifscript PRIVATE ${CORE_INCLUDE} ${BACKEND_INCLUDE})
+target_link_libraries(gifscript PRIVATE gifscript_core)
 
 set_source_files_properties(${GENERATED_SOURCES} PROPERTIES
   SKIP_LINTING ON
   )
 
 if(WIN32)
+  target_compile_options(gifscript_core PRIVATE /std:c++latest)
   target_compile_options(gifscript PRIVATE /std:c++latest)
 else()
   execute_process(
@@ -82,13 +98,12 @@ else()
   )
   string(CONCAT GIT_VERSION "\"" ${GIT_VERSION} "\"")
   message("git version: ${GIT_VERSION}")
+  target_compile_options(gifscript_core PRIVATE -Wall -Werror -Wno-unused-const-variable ${CPP_23_ARG})
   target_compile_options(gifscript PRIVATE -DGIT_VERSION=${GIT_VERSION} -Wall -Werror -Wno-unused-const-variable ${CPP_23_ARG})
 endif()
 
-target_include_directories(gifscript PRIVATE ${CMAKE_SOURCE_DIR})
-
-target_include_directories(gifscript PRIVATE ${fmt_SOURCE_DIR}/include)
-target_link_libraries(gifscript PRIVATE fmt::fmt)
+target_include_directories(gifscript PUBLIC ${fmt_SOURCE_DIR}/include)
+target_link_libraries(gifscript_core PUBLIC fmt::fmt)
 
 # CMake on windows causes issues with the lemon parser template file
 # We need to get the location of the current lemon parser executable
@@ -102,7 +117,7 @@ endif()
 
 add_custom_command(
     OUTPUT parser.c parser.h
-    COMMAND lemon -q ${CMAKE_SOURCE_DIR}/parser.y -d${CMAKE_CURRENT_BINARY_DIR} ${LEMON_PARSER_TEMPLATE}
-    DEPENDS ${CMAKE_SOURCE_DIR}/parser.y
+    COMMAND lemon -q ${CORE_SRC}/parser.y -d${CMAKE_CURRENT_BINARY_DIR} ${LEMON_PARSER_TEMPLATE}
+    DEPENDS ${CORE_SRC}/parser.y
     USES_TERMINAL
 )

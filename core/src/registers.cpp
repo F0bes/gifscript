@@ -1,4 +1,4 @@
-#include "registers.h"
+#include "registers.hpp"
 #include <utility>
 
 auto GenReg(GifRegisters reg) -> std::unique_ptr<GifRegister>

@@ -1,4 +1,4 @@
-#include "version.h"
+#include "version.hpp"
 
 #include <cstring>
 #include <cstdlib>
@@ -6,17 +6,17 @@
 #include <fcntl.h>
 #include <fmt/format.h>
 
-#include "backend/c_code.h"
+#include "c_code.hpp"
 
-#include "logger.h"
+#include "logger.hpp"
 #ifndef WIN32
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #include "parser.c"
 #pragma GCC diagnostic pop
 #endif
-#include "registers.h"
-#include "machine.h"
+#include "registers.hpp"
+#include "machine.hpp"
 
 static bool valid = true;
 static Backend* backend = nullptr;
