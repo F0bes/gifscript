@@ -82,7 +82,12 @@ add_executable(gifscript gifscript.cpp)
 target_include_directories(gifscript PRIVATE ${CORE_INCLUDE} ${BACKEND_INCLUDE})
 target_link_libraries(gifscript PRIVATE gifscript_core)
 
-set_source_files_properties(${GENERATED_SOURCES} PROPERTIES
+add_executable(tpircsfig ${FRONTEND_DIR}/tpircsfig.cpp)
+target_include_directories(tpircsfig PRIVATE ${CORE_INCLUDE} ${BACKEND_INCLUDE} ${CMAKE_BINARY_DIR})
+target_link_libraries(tpircsfig PRIVATE gifscript_core)
+
+# DISABLING LINTING FOR WIP TPIRCSFIG FRONTEND FOR NOW
+set_source_files_properties(${GENERATED_SOURCES} ${FRONTEND_DIR}/tpircsfig.cpp PROPERTIES
   SKIP_LINTING ON
   )
 
