@@ -7,12 +7,17 @@
 #include <fmt/format.h>
 
 #include "c_code.hpp"
+#include "gifscript_backend.hpp"
 
 #include "logger.hpp"
 #ifndef WIN32
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
+
 #include "parser.c"
+
+#ifndef WIN32
 #pragma GCC diagnostic pop
 #endif
 #include "registers.hpp"
@@ -553,6 +558,8 @@ void print_help(char* argv0)
             "Valid backends are:\n\t"
             "  c_code(default)\n\t"
             "    Generates a c file with an array for each gif block\n"
+            "  gifscript\n\t"
+            "    Generates a gifscript file. Mostly used for debugging or tpircsfig\n"
             "For backend specific help, please pass --bhelp to your backend\n" , argv0);
 };
 
@@ -575,6 +582,16 @@ int main(int argc, char **argv)
             {
                 fmt::print("Using C backend\n");
                 backend = new c_code_backend();
+                if(!backend->arg_parse(argc, argv))
+                {
+                    fmt::print("Use --bhelp for valid backend configuration arguments\n");
+                    return 1;
+                }
+            }
+            else if (backend_str == "gifscript")
+            {
+                fmt::print("Using gifscript backend\n");
+                backend = new gifscript_backend();
                 if(!backend->arg_parse(argc, argv))
                 {
                     fmt::print("Use --bhelp for valid backend configuration arguments\n");

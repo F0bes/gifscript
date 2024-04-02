@@ -40,4 +40,5 @@ jobs:
           generate_release_notes: true
           files: |
             ${{github.workspace}}/build/gifscript
+            ${{github.workspace}}/build/tpircsfig
           tag_name: ${{ steps.tag_version.outputs.new_tag }}

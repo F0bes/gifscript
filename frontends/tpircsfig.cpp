@@ -5,9 +5,19 @@
 #include "machine.hpp"
 #include "backend.hpp"
 #include "c_code.hpp"
+#include "gifscript_backend.hpp"
 #include "version.hpp"
 #include "parser.h"
+#ifndef WIN32
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#endif
+
 #include "parser.c"
+
+#ifndef WIN32
+#pragma GCC diagnostic pop
+#endif
 
 static bool valid = true;
 static Backend* backend = nullptr;
@@ -26,7 +36,7 @@ struct GIFTag
 	uint64_t REGS;
 };
 
-void ParsePRIM(const uint32_t& prim)
+void ParsePRIM(const uint64_t& prim)
 {
 	Parse(lparser, REG, new std::any(GifRegisters::PRIM), &valid);
 	switch(prim & 0x7)
@@ -77,28 +87,112 @@ void ParsePRIM(const uint32_t& prim)
 	Parse(lparser, 0, nullptr, &valid);
 }
 
-void ParseRGBAQ(const uint32_t& rgbaq)
+void ParseRGBAQ(const uint64_t& rgbaq)
 {
 	Parse(lparser, REG, new std::any(GifRegisters::RGBAQ), &valid);
-	Vec4 color = Vec4((rgbaq >> 24) & 0xFF, (rgbaq >> 16) & 0xFF, (rgbaq >> 8) & 0xFF, rgbaq & 0xFF);
+	Vec4 color = Vec4(rgbaq & 0xFF, (rgbaq >> 8) & 0xFF, (rgbaq >> 16) & 0xFF, (rgbaq >> 24) & 0xFF);
 	Parse(lparser, VEC4, new std::any(color), &valid);
 	Parse(lparser, 0, 0, &valid);
 }
 
-void ParseUV(const uint32_t& uv_reg)
+void ParseUV(const uint64_t& uv_reg)
 {
 	Parse(lparser, REG, new std::any(GifRegisters::UV), &valid);
-	Vec2 uv_vec = Vec2((uv_reg >> 16) & 0xFFFF, uv_reg & 0xFFFF);
+	Vec2 uv_vec = Vec2((uv_reg >> 4) & 0x3FFF, (uv_reg >> 20) & 0x3FFF);
 	Parse(lparser, VEC2, new std::any(uv_vec), &valid);
 	Parse(lparser, 0, nullptr, &valid);
 }
 
-void ParseXYZ2(const uint32_t& xyz2)
+void ParseXYZ2(const uint64_t& xyz2)
 {
 	Parse(lparser, REG, new std::any(GifRegisters::XYZ2), &valid);
-	Vec3 xyz = Vec3((xyz2 >> 20) & 0xFFFF, (xyz2 >> 12) & 0xFF, xyz2 & 0xFF);
+	Vec3 xyz = Vec3((xyz2 >> 4) & 0xFFFF, (xyz2 >> 20) & 0xFFFF, (xyz2 >> 36) & 0xFFFF);
 	Parse(lparser, VEC3, new std::any(xyz), &valid);
 	Parse(lparser, 0, 0, &valid);
+}
+
+void ParseTEX0(const uint64_t& tex0)
+{
+	Parse(lparser, REG, new std::any(GifRegisters::TEX0), &valid);
+	Parse(lparser, NUMBER_LITERAL, new std::any(static_cast<uint32_t>(tex0 & 0x3FFF)), &valid);
+	Parse(lparser, NUMBER_LITERAL, new std::any(static_cast<uint32_t>((tex0 >> 14) & 0x3F)), &valid);
+	Parse(lparser, VEC2, new std::any(Vec2((tex0 >> 26) & 0xF, (tex0 >> 30) & 0xF)), &valid);
+	switch(tex0 >> 20 & 0x3F)
+	{
+		case 0:
+			Parse(lparser, MOD, new std::any(RegModifier::CT32), &valid);
+			break;
+		case 1:
+			Parse(lparser, MOD, new std::any(RegModifier::CT24), &valid);
+			break;
+		case 2:
+			Parse(lparser, MOD, new std::any(RegModifier::CT16), &valid);
+			break;
+		default:
+			logger::error("Invalid TBP value: {}", tex0 >> 20 & 0xF);
+	}
+
+	switch((tex0 >> 35) & 0x3)
+	{
+		case 0:
+			Parse(lparser, MOD, new std::any(RegModifier::Modulate), &valid);
+			break;
+		case 1:
+			Parse(lparser, MOD, new std::any(RegModifier::Decal), &valid);
+			break;
+		case 2:
+			Parse(lparser, MOD, new std::any(RegModifier::Highlight), &valid);
+			break;
+		case 3:
+			Parse(lparser, MOD, new std::any(RegModifier::Highlight2), &valid);
+			break;
+	}
+
+	Parse(lparser, 0, nullptr, &valid);
+}
+
+void ParseFOG(const uint64_t& fog)
+{
+	Parse(lparser, REG, new std::any(GifRegisters::FOG), &valid);
+	Parse(lparser, NUMBER_LITERAL, new std::any(static_cast<uint32_t>((fog >> 56) & 0xFF)), &valid);
+	Parse(lparser, 0, nullptr, &valid);
+}
+
+void ParseFOGCOL(const uint64_t& fogcol)
+{
+	Parse(lparser, REG, new std::any(GifRegisters::FOGCOL), &valid);
+	Vec3 color = Vec3(fogcol & 0xFF, (fogcol >> 8) & 0xFF, (fogcol >> 16) & 0xFF);
+	Parse(lparser, VEC3, new std::any(color), &valid);
+	Parse(lparser, 0, nullptr, &valid);
+}
+
+void ParseSCISSOR(const uint64_t& scissor)
+{
+	Parse(lparser, REG, new std::any(GifRegisters::SCISSOR), &valid);
+	Vec4 scissor_vec = Vec4(scissor & 0x7FF, (scissor >> 16) & 0x7FF, (scissor >> 32) & 0x7FF, (scissor >> 48) & 0x7FF);
+	Parse(lparser, VEC4, new std::any(scissor_vec), &valid);
+	Parse(lparser, 0, nullptr, &valid);
+}
+
+void ParseSIGNAL(const uint64_t& signal)
+{
+	Parse(lparser, REG, new std::any(GifRegisters::SIGNAL), &valid);
+	Parse(lparser, VEC2, new std::any(Vec2(signal & UINT32_MAX, signal >> 32)), &valid);
+	Parse(lparser, 0, nullptr, &valid);
+}
+
+void ParseFINISH(const uint64_t& finish)
+{
+	Parse(lparser, REG, new std::any(GifRegisters::FINISH), &valid);
+	Parse(lparser, NUMBER_LITERAL, new std::any(static_cast<uint32_t>(finish)), &valid);
+	Parse(lparser, 0, nullptr, &valid);
+}
+
+void ParseLABEL(const uint64_t& label)
+{
+	Parse(lparser, REG, new std::any(GifRegisters::LABEL), &valid);
+	Parse(lparser, NUMBER_LITERAL, new std::any(static_cast<uint32_t>(label)), &valid);
+	Parse(lparser, 0, nullptr, &valid);
 }
 
 void Scan(uint64_t* buffer, size_t size)
@@ -127,16 +221,16 @@ void Scan(uint64_t* buffer, size_t size)
 			{
 				for(int j = 0; j < tag.NREG; j++)
 				{
-					uint32_t gifreg = gifregs >> (j * 4) & 0xF;
+					uint64_t gifreg = gifregs >> (j * 4) & 0xF;
 					logger::warn("GIFREG is %x, %016X", gifreg, *ptr);
 
 					switch(gifreg)
 					{
 						case 0x0E:
 						{
-							uint32_t data = *ptr;
+							uint64_t data = *ptr;
 							ptr++;
-							uint32_t dest = *ptr;
+							uint64_t dest = *ptr;
 							ptr++;
 							switch(static_cast<GifRegisterID>(dest))
 							{
@@ -151,6 +245,27 @@ void Scan(uint64_t* buffer, size_t size)
 									break;
 								case GifRegisterID::XYZ2:
 									ParseXYZ2(data);
+									break;
+								case GifRegisterID::TEX0:
+									ParseTEX0(data);
+									break;
+								case GifRegisterID::FOG:
+									ParseFOG(data);
+									break;
+								case GifRegisterID::FOGCOL:
+									ParseFOGCOL(data);
+									break;
+								case GifRegisterID::SCISSOR:
+									ParseSCISSOR(data);
+									break;
+								case GifRegisterID::SIGNAL:
+									ParseSIGNAL(data);
+									break;
+								case GifRegisterID::FINISH:
+									ParseFINISH(data);
+									break;
+								case GifRegisterID::LABEL:
+									ParseLABEL(data);
 									break;
 								default:
 									logger::error("Unsupported gs register");
@@ -177,17 +292,12 @@ void print_help(char* argv0)
 			   "  --help, -h\n\t"
 			   "    Prints this help message\n\t"
 			   "  --version, -v\n\t"
-			   "    Prints the version of gifscript\n\t"
-			   "  --oneshot-parse\n\t"
-			   "    Parses the entire file in one go. Probably faster, but you lose proper parsing error handling\n\t"
-			   "Optimization settings:\n\t"
-			   "  --keep-deadstore\n\t"
-			   "    Disables dead store optimization. (Consecutive writes to stateless registers)\n\t"
-			   " --no-tag-prim\n\t"
-			   "    Disables packing the first PRIM write into the GIFTag\n\t"
+			   "    Prints the version of tpircsfig\n\t"
 			   "Valid backends are:\n\t"
 			   "  c_code(default)\n\t"
 			   "    Generates a c file with an array for each gif block\n"
+			   "  gifscript\n\t"
+			   "    Generates a gifscript file. Mostly used for debugging or tpircsfig\n"
 			   "For backend specific help, please pass --bhelp to your backend\n",
 		argv0);
 };
@@ -221,6 +331,16 @@ auto main(int argc, char** argv) -> int
 					return 1;
 				}
 			}
+			else if(backend_str == "gifscript")
+			{
+				fmt::print("Using gifscript backend\n");
+				backend = new gifscript_backend();
+				if(!backend->arg_parse(argc, argv))
+				{
+					fmt::print("Use --bhelp for valid backend configuration arguments\n");
+					return 1;
+				}
+			}
 			else
 			{
 				fmt::print("Unknown backend: {}\n", backend_str);
@@ -234,7 +354,7 @@ auto main(int argc, char** argv) -> int
 		}
 		else if(arg == "--version" || arg == "-v")
 		{
-			fmt::print("Gifscript version: {}\n", GIT_VERSION);
+			fmt::print("Gifscript(tpircsfig) version: {}\n", GIT_VERSION);
 			return 0;
 		}
 		else if(arg == "--keep-deadstore")
@@ -262,8 +382,8 @@ auto main(int argc, char** argv) -> int
 
 	if(backend == nullptr)
 	{
-		logger::info("No backend specified, using default 'c_code'");
-		backend = new c_code_backend();
+		logger::info("No backend specified, using default 'gifscript'");
+		backend = new gifscript_backend();
 		if(!backend->arg_parse(argc, argv))
 		{
 			fmt::print("Use --bhelp for valid backend configuration arguments\n");
@@ -311,6 +431,8 @@ auto main(int argc, char** argv) -> int
 	fread(buffer.data(), sizeof(uint64_t), numbytes, fin);
 
 	Scan(buffer.data(), numbytes);
+
+	ParseFree(lparser, free);
 	delete backend;
 	fclose(fin);
 	return 0;

@@ -63,7 +63,9 @@ set(GENERATED_SOURCES
 set(BACKEND_SOURCES
   ${BACKEND_INCLUDE}/backend.hpp
   ${BACKEND_INCLUDE}/c_code.hpp
+  ${BACKEND_INCLUDE}/gifscript_backend.hpp
   ${BACKEND_SRC}/c_code.cpp
+  ${BACKEND_SRC}/gifscript_backend.cpp
 )
 
 set(CORE_SOURCES
@@ -105,6 +107,7 @@ else()
   message("git version: ${GIT_VERSION}")
   target_compile_options(gifscript_core PRIVATE -Wall -Werror -Wno-unused-const-variable ${CPP_23_ARG})
   target_compile_options(gifscript PRIVATE -DGIT_VERSION=${GIT_VERSION} -Wall -Werror -Wno-unused-const-variable ${CPP_23_ARG})
+  target_compile_options(tpircsfig PRIVATE -DGIT_VERSION=${GIT_VERSION} -Wall -Werror -Wno-unused-const-variable ${CPP_23_ARG})
 endif()
 
 target_include_directories(gifscript PUBLIC ${fmt_SOURCE_DIR}/include)
