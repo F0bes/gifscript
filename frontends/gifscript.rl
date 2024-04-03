@@ -10,16 +10,12 @@
 #include "gifscript_backend.hpp"
 
 #include "logger.hpp"
-#ifndef WIN32
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
-#endif
-
 #include "parser.c"
-
-#ifndef WIN32
 #pragma GCC diagnostic pop
-#endif
+
 #include "registers.hpp"
 #include "machine.hpp"
 

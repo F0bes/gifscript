@@ -8,16 +8,11 @@
 #include "gifscript_backend.hpp"
 #include "version.hpp"
 #include "parser.h"
-#ifndef WIN32
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
-#endif
-
 #include "parser.c"
-
-#ifndef WIN32
 #pragma GCC diagnostic pop
-#endif
 
 static bool valid = true;
 static Backend* backend = nullptr;

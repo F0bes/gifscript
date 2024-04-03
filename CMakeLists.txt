@@ -16,13 +16,6 @@ endif()
 
 find_package(RAGEL REQUIRED)
 
-if(WIN32)
-  find_program(LEMON-PARSER "lemon" REQUIRED)
-  if(NOT ${LEMON-PARSER} STREQUAL LEMON-PARSER-NOTFOUND)
-    message("lemon parser (lemon.exe) not found. If using VCPKG install lemon-parser-generator and add `$VCPKG_ROOT\\packages\\lemon-parser-generator_x64-windows\\tools\\lemon` (or wherever lemon.exe is) to your $PATH.")
-  endif()
-endif()
-
 set(CORE_DIR ${CMAKE_SOURCE_DIR}/core)
 set(CORE_INCLUDE ${CORE_DIR}/include)
 set(CORE_SRC ${CORE_DIR}/src)
@@ -41,11 +34,9 @@ FetchContent_Declare(fmt
 )
 FetchContent_MakeAvailable(fmt)
 
-if(NOT WIN32)
 find_program(CLANG_TIDY_EXE NAMES "clang-tidy")
-  if(CLANG_TIDY_EXE AND NOT DISABLE_CLANG_TIDY AND NOT WIN32)
-    set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*,modernize-*,performance-*,portability-*,bugprone-*,clang-analyzer-*)
-  endif()
+if(CLANG_TIDY_EXE AND NOT DISABLE_CLANG_TIDY)
+  set(CMAKE_CXX_CLANG_TIDY clang-tidy -checks=-*,readability-*,modernize-*,performance-*,portability-*,bugprone-*,clang-analyzer-*)
 endif()
 
 RAGEL_TARGET(gifscript
@@ -93,35 +84,21 @@ set_source_files_properties(${GENERATED_SOURCES} ${FRONTEND_DIR}/tpircsfig.cpp P
   SKIP_LINTING ON
   )
 
-if(WIN32)
-  target_compile_options(gifscript_core PRIVATE /std:c++latest)
-  target_compile_options(gifscript PRIVATE /std:c++latest)
-else()
-  execute_process(
-    COMMAND git describe --tags --abbrev=4 --always
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_VERSION
-    OUTPUT_STRIP_TRAILING_WHITESPACE
+execute_process(
+  COMMAND git describe --tags --abbrev=4 --always
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  OUTPUT_VARIABLE GIT_VERSION
+  OUTPUT_STRIP_TRAILING_WHITESPACE
   )
-  string(CONCAT GIT_VERSION "\"" ${GIT_VERSION} "\"")
-  message("git version: ${GIT_VERSION}")
-  target_compile_options(gifscript_core PRIVATE -Wall -Werror -Wno-unused-const-variable ${CPP_23_ARG})
-  target_compile_options(gifscript PRIVATE -DGIT_VERSION=${GIT_VERSION} -Wall -Werror -Wno-unused-const-variable ${CPP_23_ARG})
-  target_compile_options(tpircsfig PRIVATE -DGIT_VERSION=${GIT_VERSION} -Wall -Werror -Wno-unused-const-variable ${CPP_23_ARG})
-endif()
+
+string(CONCAT GIT_VERSION "\"" ${GIT_VERSION} "\"")
+message("git version: ${GIT_VERSION}")
+target_compile_options(gifscript_core PRIVATE -Wall -Werror -Wno-unused-const-variable ${CPP_23_ARG})
+target_compile_options(gifscript PRIVATE -DGIT_VERSION=${GIT_VERSION} -Wall -Werror -Wno-unused-const-variable ${CPP_23_ARG})
+target_compile_options(tpircsfig PRIVATE -DGIT_VERSION=${GIT_VERSION} -Wall -Werror -Wno-unused-const-variable ${CPP_23_ARG})
 
 target_include_directories(gifscript PUBLIC ${fmt_SOURCE_DIR}/include)
 target_link_libraries(gifscript_core PUBLIC fmt::fmt)
-
-# CMake on windows causes issues with the lemon parser template file
-# We need to get the location of the current lemon parser executable
-# And (on vcpkg at least) the location of the template file is in the same
-# discord as the lemon executable
-
-if(WIN32)
-  get_filename_component(LEMON_PARSER_DIR ${LEMON-PARSER} DIRECTORY)
-  set(LEMON_PARSER_TEMPLATE "-T${LEMON_PARSER_DIR}/lempar.c")
-endif()
 
 add_custom_command(
     OUTPUT parser.c parser.h

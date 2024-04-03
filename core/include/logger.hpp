@@ -18,10 +18,8 @@ namespace logger
 		}
 	};
 
-#ifndef _WIN32
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
-#endif
 	template <typename... Args>
 	void log(fmt_location format, fmt::color fgcol, Args&&... args)
 	{
@@ -32,10 +30,7 @@ namespace logger
 
 		delete[] buf;
 	}
-#ifndef _WIN32
 #pragma GCC diagnostic pop
-#endif
-
 	template <typename... Args>
 	void info(fmt_location format, Args&&... args)
 	{
