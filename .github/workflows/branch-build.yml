@@ -14,7 +14,7 @@ jobs:
         run: sudo apt update && sudo apt install -y gcc-12 g++-12 make ragel lemon cmake
 
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure CMake
         run: CC=gcc-12 CXX=g++-12 cmake -DDISABLE_CLANG_TIDY=YES -B ${{github.workspace}}/build
