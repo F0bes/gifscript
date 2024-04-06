@@ -1,18 +1,10 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(gifscript CXX)
+project(gifscript CXX C)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR})
-
-# Using CMAKE_CXX_STANDARD doesn't work for GCC...
-# This also doesn't work for Clang 14...
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  set(CPP_23_ARG "-std=c++2b")
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  set(CPP_23_ARG "-std=c++23")
-endif()
 
 find_package(RAGEL REQUIRED)
 
@@ -45,9 +37,11 @@ RAGEL_TARGET(gifscript
   COMPILE_FLAGS -G2
 )
 
+set_source_files_properties(parser.cpp PROPERTIES COMPILE_FLAGS "-Wno-unused-variable")
+
 set(GENERATED_SOURCES
   ${CMAKE_CURRENT_BINARY_DIR}/parser.h
-  ${CMAKE_CURRENT_BINARY_DIR}/parser.c
+  ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp
   ${RAGEL_gifscript_OUTPUTS}
 )
 
@@ -64,6 +58,7 @@ set(CORE_SOURCES
   ${CORE_INCLUDE}/logger.hpp
   ${CORE_INCLUDE}/machine.hpp
   ${CORE_INCLUDE}/registers.hpp
+  ${CORE_SRC}/logger.cpp
   ${CORE_SRC}/machine.cpp
   ${CORE_SRC}/registers.cpp
 )
@@ -93,16 +88,22 @@ execute_process(
 
 string(CONCAT GIT_VERSION "\"" ${GIT_VERSION} "\"")
 message("git version: ${GIT_VERSION}")
-target_compile_options(gifscript_core PRIVATE -Wall -Werror -Wno-unused-const-variable ${CPP_23_ARG})
-target_compile_options(gifscript PRIVATE -DGIT_VERSION=${GIT_VERSION} -Wall -Werror -Wno-unused-const-variable ${CPP_23_ARG})
-target_compile_options(tpircsfig PRIVATE -DGIT_VERSION=${GIT_VERSION} -Wall -Werror -Wno-unused-const-variable ${CPP_23_ARG})
+target_compile_options(gifscript_core PRIVATE -Wall -Werror -Wno-unused-const-variable)
+target_compile_options(gifscript PRIVATE -DGIT_VERSION=${GIT_VERSION} -Wall -Werror -Wno-unused-const-variable)
+target_compile_options(tpircsfig PRIVATE -DGIT_VERSION=${GIT_VERSION} -Wall -Werror -Wno-unused-const-variable)
 
 target_include_directories(gifscript PUBLIC ${fmt_SOURCE_DIR}/include)
 target_link_libraries(gifscript_core PUBLIC fmt::fmt)
 
 add_custom_command(
-    OUTPUT parser.c parser.h
-    COMMAND lemon -q ${CORE_SRC}/parser.y -d${CMAKE_CURRENT_BINARY_DIR} ${LEMON_PARSER_TEMPLATE}
+    OUTPUT parser.cpp parser.h
+    COMMAND lemon -q ${CORE_SRC}/parser.y -d${CMAKE_CURRENT_BINARY_DIR} && mv parser.c parser.cpp && sed -i 's/parser.c/parser.cpp/g' parser.cpp
     DEPENDS ${CORE_SRC}/parser.y
     USES_TERMINAL
 )
+
+if(NOT DISABLE_TESTS)
+  include(CTest)
+  enable_testing()
+  add_subdirectory(tests)
+endif()

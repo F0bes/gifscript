@@ -11,7 +11,7 @@
 
 class Machine
 {
-	Backend* backend = nullptr;
+	Backend* backend = &dummy_backend;
 
 	std::list<GIFBlock> blocks;
 	std::map<std::string, GIFBlock> macros;

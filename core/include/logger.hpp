@@ -6,6 +6,11 @@
 
 namespace logger
 {
+	// Primarily used to disable logging in tests
+	extern bool g_log_enabled;
+#define CHECK_LOGGING_ENABLED() \
+	if(!g_log_enabled) \
+		return;
 	struct fmt_location
 	{
 		const char* fmt;
@@ -23,6 +28,7 @@ namespace logger
 	template <typename... Args>
 	void log(fmt_location format, fmt::color fgcol, Args&&... args)
 	{
+		CHECK_LOGGING_ENABLED();
 		int size_s = std::snprintf(nullptr, 0, format.fmt, std::forward<Args>(args)...);
 		char* buf = new char[size_s + 1];
 		std::snprintf(buf, size_s + 1, format.fmt, std::forward<Args>(args)...);
@@ -34,6 +40,7 @@ namespace logger
 	template <typename... Args>
 	void info(fmt_location format, Args&&... args)
 	{
+		CHECK_LOGGING_ENABLED();
 		fmt::print(fg(fmt::color::blue), "[INFO ] ");
 		log(format, fmt::color::blue, std::forward<Args>(args)...);
 	}
@@ -41,6 +48,7 @@ namespace logger
 	template <typename... Args>
 	void warn(fmt_location format, Args&&... args)
 	{
+		CHECK_LOGGING_ENABLED();
 		fmt::print(fg(fmt::color::yellow), "[WARN ] ");
 		log(format, fmt::color::yellow, std::forward<Args>(args)...);
 	}
@@ -48,6 +56,7 @@ namespace logger
 	template <typename... Args>
 	void error(fmt_location format, Args&&... args)
 	{
+		CHECK_LOGGING_ENABLED();
 		fmt::print(fg(fmt::color::red), "[ERROR] ");
 		log(format, fmt::color::red, std::forward<Args>(args)...);
 	}
@@ -55,7 +64,10 @@ namespace logger
 	template <typename... Args>
 	void debug(fmt_location format, Args&&... args)
 	{
+		CHECK_LOGGING_ENABLED();
 		fmt::print(fg(fmt::color::green), "[DEBUG] ");
 		log(format, fmt::color::green, std::forward<Args>(args)...);
 	}
 }; // namespace logger
+
+#undef CHECK_LOGGING_ENABLED

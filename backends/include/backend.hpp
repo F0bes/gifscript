@@ -15,3 +15,31 @@ public:
 
 	virtual void emit(GIFBlock& block) = 0;
 };
+
+class DummyBackend : public Backend
+{
+public:
+	DummyBackend() = default;
+	~DummyBackend() override = default;
+
+	bool arg_parse(int argc, char** argv) override
+	{
+		return true;
+	}
+
+	void set_output(const std::string_view& output) override
+	{
+		(void)output;
+	}
+
+	void print_help() const override
+	{
+	}
+
+	void emit(GIFBlock& block) override
+	{
+		(void)block;
+	}
+};
+
+static DummyBackend dummy_backend;

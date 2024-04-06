@@ -13,7 +13,7 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-variable"
-#include "parser.c"
+#include "parser.cpp"
 #pragma GCC diagnostic pop
 
 #include "registers.hpp"

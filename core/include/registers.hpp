@@ -147,10 +147,10 @@ public:
 
 	virtual bool Ready() const noexcept = 0;
 
-	virtual void Push(uint32_t) = 0;
-	virtual void Push(Vec2) = 0;
-	virtual void Push(Vec3) = 0;
-	virtual void Push(Vec4) = 0;
+	virtual bool Push(uint32_t) = 0;
+	virtual bool Push(Vec2) = 0;
+	virtual bool Push(Vec3) = 0;
+	virtual bool Push(Vec4) = 0;
 
 	virtual bool ApplyModifier(RegModifier) = 0;
 
@@ -196,29 +196,28 @@ public:
 		return type.has_value();
 	}
 
-	void Push(uint32_t) override
+	bool Push(uint32_t) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
-	void Push(Vec2) override
+	bool Push(Vec2) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
-	void Push(Vec3) override
+	bool Push(Vec3) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
-	void Push(Vec4) override
+	bool Push(Vec4) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
 	bool ApplyModifier(RegModifier mod) override
 	{
-		std::cout << "Applying modifier: " << mod << std::endl;
 		switch(mod)
 		{
 			case Point:
@@ -255,7 +254,6 @@ public:
 				texture = true;
 				break;
 			default:
-				std::cerr << "Unknown modifier: " << mod << std::endl;
 				return false;
 		}
 
@@ -308,25 +306,27 @@ public:
 		return value.has_value();
 	}
 
-	void Push(uint32_t) override
+	bool Push(uint32_t) override
 	{
-		std::cout << "RGBAQ::Push(uint32_t) Not supported!" << std::endl;
+		return false;
 	}
 
-	void Push(Vec2) override
+	bool Push(Vec2) override
 	{
-		std::cout << "RGBAQ::Push(Vec2) Not supported!" << std::endl;
+		return false;
 	}
 
-	void Push(Vec3 v3) override
+	bool Push(Vec3 v3) override
 	{
 		value = Vec4(v3.x, v3.y, v3.z, 0xff);
+		return true;
 	}
 
-	void Push(Vec4 v4) override
+	bool Push(Vec4 v4) override
 	{
 		std::cout << "!!!! RGBAQ PUSHED " << v4.x << " " << v4.y << " " << v4.z << " " << v4.w << std::endl;
 		value = v4;
+		return true;
 	}
 
 	bool ApplyModifier(RegModifier) override
@@ -360,24 +360,25 @@ public:
 		return value.has_value();
 	}
 
-	void Push(uint32_t) override
+	bool Push(uint32_t) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
-	void Push(Vec2 v2) override
+	bool Push(Vec2 v2) override
 	{
 		value = v2;
+		return true;
 	}
 
-	void Push(Vec3 v3) override
+	bool Push(Vec3 v3) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
-	void Push(Vec4 v4) override
+	bool Push(Vec4 v4) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
 	bool ApplyModifier(RegModifier) override
@@ -410,24 +411,25 @@ struct XYZ2 : public GifRegister
 		return value.has_value();
 	}
 
-	void Push(uint32_t) override
+	bool Push(uint32_t) override
 	{
-		std::cerr << "XYZ2::Push(uint32_t) Not supported!" << std::endl;
+		return false;
 	}
 
-	void Push(Vec2) override
+	bool Push(Vec2) override
 	{
-		std::cerr << "XYZ2::Push(Vec2) Not supported!" << std::endl;
+		return false;
 	}
 
-	void Push(Vec3 v3) override
+	bool Push(Vec3 v3) override
 	{
 		value = v3;
+		return true;
 	}
 
-	void Push(Vec4) override
+	bool Push(Vec4) override
 	{
-		std::cerr << "XYZ2::Push(Vec4) Not supported!" << std::endl;
+		return false;
 	}
 
 	bool ApplyModifier(RegModifier) override
@@ -481,7 +483,7 @@ struct TEX0 : public GifRegister
 		return tbp.has_value() && tbw.has_value() && psm.has_value() && tw.has_value() && th.has_value();
 	}
 
-	void Push(uint32_t i) override
+	bool Push(uint32_t i) override
 	{
 		if(!tbp.has_value())
 			tbp = i;
@@ -492,30 +494,32 @@ struct TEX0 : public GifRegister
 		else if(!th.has_value())
 			th = i;
 		else
-			logger::error("Unsure what you're trying to push to TEX0 (%d)", i);
+			return false;
+
+
+		return true;
 	}
 
-	void Push(Vec2 v2) override
+	bool Push(Vec2 v2) override
 	{
 		if(!tw.has_value() && !th.has_value())
 		{
 			tw = v2.x;
 			th = v2.y;
+			return true;
 		}
-		else
-		{
-			logger::error("Unsure what you're trying to push to TEX0 (%d, %d)", v2.x, v2.y);
-		}
+
+		return false;
 	}
 
-	void Push(Vec3 v3) override
+	bool Push(Vec3 v3) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
-	void Push(Vec4) override
+	bool Push(Vec4) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
 	bool ApplyModifier(RegModifier mod) override
@@ -607,24 +611,25 @@ public:
 		return value.has_value();
 	}
 
-	void Push(uint32_t i) override
+	bool Push(uint32_t i) override
 	{
 		value = i;
+		return true;
 	}
 
-	void Push(Vec2) override
+	bool Push(Vec2) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
-	void Push(Vec3 v3) override
+	bool Push(Vec3 v3) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
-	void Push(Vec4) override
+	bool Push(Vec4) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
 	bool ApplyModifier(RegModifier) override
@@ -658,24 +663,25 @@ public:
 		return value.has_value();
 	}
 
-	void Push(uint32_t) override
+	bool Push(uint32_t) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
-	void Push(Vec2) override
+	bool Push(Vec2) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
-	void Push(Vec3 v3) override
+	bool Push(Vec3 v3) override
 	{
 		value = v3;
+		return true;
 	}
 
-	void Push(Vec4) override
+	bool Push(Vec4) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
 	bool ApplyModifier(RegModifier) override
@@ -709,24 +715,25 @@ public:
 		return value.has_value();
 	}
 
-	void Push(uint32_t) override
+	bool Push(uint32_t) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
-	void Push(Vec2) override
+	bool Push(Vec2) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
-	void Push(Vec3) override
+	bool Push(Vec3) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
-	void Push(Vec4 v4) override
+	bool Push(Vec4 v4) override
 	{
 		value = v4;
+		return true;
 	}
 
 	bool ApplyModifier(RegModifier) override
@@ -761,24 +768,26 @@ public:
 	}
 
 	// Assume that all bits are not masked
-	void Push(uint32_t i) override
+	bool Push(uint32_t i) override
 	{
 		value = Vec2(i, ~0u);
+		return true;
 	}
 
-	void Push(Vec2 v2) override
+	bool Push(Vec2 v2) override
 	{
 		value = v2;
+		return true;
 	}
 
-	void Push(Vec3) override
+	bool Push(Vec3) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
-	void Push(Vec4 v4) override
+	bool Push(Vec4 v4) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
 	bool ApplyModifier(RegModifier) override
@@ -814,24 +823,25 @@ public:
 		return true;
 	}
 
-	void Push(uint32_t i) override
+	bool Push(uint32_t i) override
 	{
 		value = i;
+		return true;
 	}
 
-	void Push(Vec2) override
+	bool Push(Vec2) override
 	{
-		logger::warn("Non-Integer value pushed to FINISH register, ignored.");
+		return false;
 	}
 
-	void Push(Vec3) override
+	bool Push(Vec3) override
 	{
-		logger::warn("Non-Integer value pushed to FINISH register, ignored.");
+		return false;
 	}
 
-	void Push(Vec4 v4) override
+	bool Push(Vec4 v4) override
 	{
-		logger::warn("Non-Integer value pushed to FINISH register, ignored.");
+		return false;
 	}
 
 	bool ApplyModifier(RegModifier) override
@@ -866,24 +876,26 @@ public:
 	}
 
 	// Assume that all bits are not masked
-	void Push(uint32_t i) override
+	bool Push(uint32_t i) override
 	{
 		value = Vec2{i, ~0u};
+		return true;
 	}
 
-	void Push(Vec2 v2) override
+	bool Push(Vec2 v2) override
 	{
 		value = v2;
+		return true;
 	}
 
-	void Push(Vec3) override
+	bool Push(Vec3) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
-	void Push(Vec4 v4) override
+	bool Push(Vec4 v4) override
 	{
-		logger::error("Not supported!");
+		return false;
 	}
 
 	bool ApplyModifier(RegModifier) override

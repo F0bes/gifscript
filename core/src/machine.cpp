@@ -78,6 +78,15 @@ auto Machine::TryStartMacro(const std::string& name) -> bool
 
 auto Machine::TryEndBlockMacro() -> bool
 {
+	if(HasCurrentBlockOrMacro())
+	{
+		if(CurrentBlockMacro().registers.empty())
+		{
+			logger::error("Block/Macro %s has no registers\n", CurrentBlockMacro().name.c_str());
+			return false;
+		}
+	}
+
 	if(HasCurrentBlock())
 	{
 		FirstPassOptimize();
@@ -180,8 +189,7 @@ auto Machine::TryPushReg(int32_t value) -> bool
 {
 	if(HasCurrentBlockOrMacro() && CurrentBlockMacro().HasRegister()) [[likely]]
 	{
-		CurrentBlockMacro().CurrentRegister().Push(value);
-		return true;
+		return CurrentBlockMacro().CurrentRegister().Push(value);
 	}
 
 	logger::error("There is no block, macro or register to push a integer to.");
@@ -192,8 +200,7 @@ auto Machine::TryPushReg(Vec2 value) -> bool
 {
 	if(HasCurrentBlockOrMacro() && CurrentBlockMacro().HasRegister()) [[likely]]
 	{
-		CurrentBlockMacro().CurrentRegister().Push(value);
-		return true;
+		return CurrentBlockMacro().CurrentRegister().Push(value);
 	}
 
 	logger::error("There is no block, macro or register to push a Vec2 to.");
@@ -204,8 +211,7 @@ auto Machine::TryPushReg(Vec3 value) -> bool
 {
 	if(HasCurrentBlockOrMacro() && CurrentBlockMacro().HasRegister()) [[likely]]
 	{
-		CurrentBlockMacro().CurrentRegister().Push(value);
-		return true;
+		return CurrentBlockMacro().CurrentRegister().Push(value);
 	}
 
 	logger::error("There is no block, macro or register to push a Vec3 to.");
@@ -216,8 +222,7 @@ auto Machine::TryPushReg(Vec4 value) -> bool
 {
 	if(HasCurrentBlockOrMacro() && CurrentBlockMacro().HasRegister()) [[likely]]
 	{
-		CurrentBlockMacro().CurrentRegister().Push(value);
-		return true;
+		return CurrentBlockMacro().CurrentRegister().Push(value);
 	}
 
 	logger::error("There is no block, macro or register to push a Vec4 to.");

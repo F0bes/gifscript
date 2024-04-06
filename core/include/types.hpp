@@ -40,6 +40,17 @@ struct Vec2
 {
 	uint32_t x, y;
 
+	Vec2()
+		: x(0)
+		, y(0)
+	{
+	}
+	Vec2(uint32_t x, uint32_t y)
+		: x(x)
+		, y(y)
+	{
+	}
+
 	static Vec2 Parse(const std::string& s)
 	{
 		Vec2 v2;
@@ -53,6 +64,19 @@ struct Vec2
 struct Vec3
 {
 	uint32_t x, y, z;
+
+	Vec3()
+		: x(0)
+		, y(0)
+		, z(0)
+	{
+	}
+	Vec3(uint32_t x, uint32_t y, uint32_t z)
+		: x(x)
+		, y(y)
+		, z(z)
+	{
+	}
 
 	static Vec3 Parse(const std::string& s)
 	{
@@ -68,6 +92,21 @@ struct Vec3
 struct Vec4
 {
 	uint32_t x, y, z, w;
+
+	Vec4()
+		: x(0)
+		, y(0)
+		, z(0)
+		, w(0)
+	{
+	}
+	Vec4(uint32_t x, uint32_t y, uint32_t z, uint32_t w)
+		: x(x)
+		, y(y)
+		, z(z)
+		, w(w)
+	{
+	}
 
 	static Vec4 Parse(const std::string& s)
 	{
