@@ -32,6 +32,9 @@ jobs:
       - name: Build
         run: cmake --build ${{github.workspace}}/build
 
+      - name: Test
+        run: cmake --build ${{github.workspace}}/build --target test
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         if: steps.tag_version.outputs.new_tag

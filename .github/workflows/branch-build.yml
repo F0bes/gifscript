@@ -21,3 +21,6 @@ jobs:
 
       - name: Build
         run: cmake --build ${{github.workspace}}/build
+
+      - name: Test
+        run: cmake --build ${{github.workspace}}/build --target test
